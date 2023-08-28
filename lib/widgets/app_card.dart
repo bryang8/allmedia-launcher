@@ -18,6 +18,7 @@
 
 import 'dart:async';
 
+import 'package:flauncher/actions.dart';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/settings_service.dart';
@@ -38,6 +39,7 @@ class AppCard extends StatefulWidget {
   final bool autofocus;
   final void Function(AxisDirection) onMove;
   final VoidCallback onMoveEnd;
+  final Function customAction;
 
   AppCard({
     Key? key,
@@ -46,6 +48,7 @@ class AppCard extends StatefulWidget {
     required this.autofocus,
     required this.onMove,
     required this.onMoveEnd,
+    required this.customAction
   }) : super(key: key);
 
   @override
@@ -243,6 +246,10 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
       }
       return KeyEventResult.handled;
     } else if (_validationKeys.contains(key)) {
+      if(widget.application.packageName == 'menu'){
+        widget.customAction();
+      }
+
       context.read<AppsService>().launchApp(widget.application);
       return KeyEventResult.handled;
     }

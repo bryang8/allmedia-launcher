@@ -118,14 +118,17 @@ class App extends DataClass implements Insertable<App> {
   final Uint8List? icon;
   final bool hidden;
   final bool sideloaded;
-  const App(
-      {required this.packageName,
-      required this.name,
-      required this.version,
-      this.banner,
-      this.icon,
-      required this.hidden,
-      required this.sideloaded});
+
+  const App({
+    required this.packageName,
+    required this.name,
+    required this.version,
+    this.banner,
+    this.icon,
+    required this.hidden,
+    required this.sideloaded
+  });
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};

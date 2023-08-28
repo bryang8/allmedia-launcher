@@ -65,6 +65,7 @@ class CategoryRow extends StatelessWidget {
                             autofocus: index == 0,
                             onMove: (direction) => _onMove(context, direction, index),
                             onMoveEnd: () => _onMoveEnd(context),
+                            customAction: (){},
                           ),
                         ),
                       ),

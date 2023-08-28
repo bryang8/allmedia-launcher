@@ -19,6 +19,7 @@
 import 'package:flauncher/database.dart';
 import 'package:flauncher/flauncher.dart';
 import 'package:flauncher/gradients.dart';
+import 'package:flauncher/home.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/providers/ticker_model.dart';

@@ -23,14 +23,18 @@ import 'package:flauncher/custom_traversal_policy.dart';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/wallpaper_service.dart';
-import 'package:flauncher/widgets/apps_grid.dart';
-import 'package:flauncher/widgets/category_row.dart';
+import 'package:flauncher/widgets/apps_home_grid.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flauncher/widgets/time_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class FLauncher extends StatelessWidget {
+class Home extends StatelessWidget {
+  final Uint8List _allAppsBanner;
+  final Function _openAllApps;
+
+  Home(this._allAppsBanner, this._openAllApps);
+
   @override
   Widget build(BuildContext context) => FocusTraversalGroup(
         policy: RowByRowTraversalPolicy(),
@@ -49,38 +53,28 @@ class FLauncher extends StatelessWidget {
                     if(!appsService.initialized) {
                       return _emptyState(context);
                     }
-                    else {
-                      return SingleChildScrollView(child: _categories(appsService.categoriesWithApps));
-                    }
+
+                    var appMenu = App(
+                        packageName: "menu",
+                        name: "All Apps",
+                        version: "0",
+                        hidden: false,
+                        sideloaded: false,
+                        banner: _allAppsBanner
+                    );
+
+                    var homeCategory = appsService.categoriesWithApps[0];
+                    List<App> homeAppsList = homeCategory.applications.toList();
+
+                    homeAppsList.insert(0, appMenu);
+
+                    return _home(context, homeCategory, homeAppsList);
                   }
                 ),
               ),
             ),
           ],
         ),
-      );
-
-  Widget _categories(List<CategoryWithApps> categoriesWithApps) => Column(
-        children: categoriesWithApps.map((categoryWithApps) {
-          switch (categoryWithApps.category.type) {
-            case CategoryType.row:
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: CategoryRow(
-                    key: Key(categoryWithApps.category.id.toString()),
-                    category: categoryWithApps.category,
-                    applications: categoryWithApps.applications),
-              );
-            case CategoryType.grid:
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: AppsGrid(
-                    key: Key(categoryWithApps.category.id.toString()),
-                    category: categoryWithApps.category,
-                    applications: categoryWithApps.applications),
-              );
-          }
-        }).toList(),
       );
 
   AppBar _appBar(BuildContext context) => AppBar(
@@ -137,4 +131,59 @@ class FLauncher extends StatelessWidget {
         ),
       );
 
+  Widget _home(BuildContext context, CategoryWithApps homeCategory, List<App> homeApps) => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children:
+      [
+        Container(
+          height: MediaQuery.of(context).size.height * 0.50,
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.30,
+                  padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
+                  child: Column(
+                    children: [
+                      Container(
+                        child: Container(
+                          color: Colors.grey,
+                        ),
+                        padding: EdgeInsets.only(bottom: 4),
+                        height: MediaQuery.of(context).size.height * 0.25,
+                      ),
+                      Container(
+                        child: Container(
+                          color: Colors.grey,
+                        ),
+                        padding: EdgeInsets.only(top: 4),
+                        height: MediaQuery.of(context).size.height * 0.25,
+                      )
+                    ] ,
+                  ),
+                ),
+                Container(
+                  width: (MediaQuery.of(context).size.width * 0.7) - 32,
+                  padding: EdgeInsets.fromLTRB(4,0,0,0),
+                  child: Container(
+                    color: Colors.grey,
+                  ),
+                )
+              ]
+          ),
+        ),
+        //Home Apps
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: AppsHomeGrid(
+            key: Key(homeCategory.category.id.toString()),
+            category: homeCategory.category,
+            applications: homeApps,
+            openAllApps: _openAllApps),
+        )
+      ]
+    ),
+  );
 }

@@ -25,14 +25,16 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/flauncher_channel.dart';
+import 'package:flauncher/home_app.dart';
 import 'package:flauncher/unsplash_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
-import 'flauncher_app.dart';
+import 'dart:developer';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,11 +43,14 @@ Future<void> main() async {
   await Firebase.initializeApp();
   final firebaseCrashlytics = FirebaseCrashlytics.instance;
 
+  final ByteData bytes = await rootBundle.load('assets/allapps.png');
+  final Uint8List allAppsBanner = bytes.buffer.asUint8List();
+
   FlutterError.onError = firebaseCrashlytics.recordFlutterError;
   Isolate.current.addErrorListener(RawReceivePort((List<dynamic> pair) async => await firebaseCrashlytics.recordError(
         pair.first,
         pair.last as StackTrace,
-      )).sendPort);
+    )).sendPort);
 
   runZonedGuarded<void>(() async {
     final firebaseAnalytics = FirebaseAnalytics.instance;
@@ -66,7 +71,7 @@ Future<void> main() async {
       ),
     );
     runApp(
-      FLauncherApp(
+      HomeApp(
         sharedPreferences,
         firebaseCrashlytics,
         firebaseAnalytics,
@@ -75,6 +80,7 @@ Future<void> main() async {
         fLauncherDatabase,
         unsplashService,
         remoteConfig,
+        allAppsBanner
       ),
     );
   }, firebaseCrashlytics.recordError);

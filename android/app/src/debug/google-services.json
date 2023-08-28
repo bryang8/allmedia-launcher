@@ -1,21 +1,39 @@
 {
   "project_info": {
-    "project_number": "_",
-    "project_id": "_"
+    "project_number": "902228738816",
+    "project_id": "amlauncher-b194b",
+    "storage_bucket": "amlauncher-b194b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "_",
+        "mobilesdk_app_id": "1:902228738816:android:12b61e347c11e1f13aa9e5",
         "android_client_info": {
           "package_name": "me.efesser.flauncher"
         }
       },
+      "oauth_client": [
+        {
+          "client_id": "902228738816-69lii6vqpt25k3rcu2ih9lu33akl1nvv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "_"
+          "current_key": "AIzaSyDhkKpWtpwOTB0VilZ29bmZfgKVBQU0t-0"
         }
-      ]
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902228738816-69lii6vqpt25k3rcu2ih9lu33akl1nvv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
-  ]
+  ],
+  "configuration_version": "1"
 }
