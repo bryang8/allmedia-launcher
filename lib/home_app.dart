@@ -74,22 +74,27 @@ class HomeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var settingsService = ChangeNotifierProvider(
-        create: (_) =>
-            SettingsService(_sharedPreferences, _firebaseCrashlytics, _firebaseAnalytics, _firebaseRemoteConfig),
-        lazy: false);
-    var appsService = ChangeNotifierProvider(create: (_) => AppsService(_fLauncherChannel, _fLauncherDatabase));
-    var wallpaperService = ChangeNotifierProxyProvider<SettingsService, WallpaperService>(
-    create: (_) => WallpaperService(_imagePicker, _fLauncherChannel, _unsplashService),
-    update: (_, settingsService, wallpaperService) => wallpaperService!..settingsService = settingsService);
-    var tickerModel = Provider<TickerModel>(create: (context) => TickerModel(null));
+    var settingsService = SettingsService(_sharedPreferences, _firebaseCrashlytics, _firebaseAnalytics, _firebaseRemoteConfig);
+    var settingsProvider = ChangeNotifierProvider(create: (_) => settingsService, lazy: false);
+
+    var appsService = AppsService(_fLauncherChannel, _fLauncherDatabase);
+    var appsProvider = ChangeNotifierProvider(create: (_) => appsService);
+
+    var wallpaperService = WallpaperService(_imagePicker, _fLauncherChannel, _unsplashService);
+    var wallpaperProvider =  ChangeNotifierProxyProvider<SettingsService, WallpaperService>(
+      create: (_) => wallpaperService,
+      update: (_, settingsService, wallpaperService) => wallpaperService!..settingsService = settingsService
+    );
+
+    var tickerModel = TickerModel(null);
+    var tickerProvider = Provider<TickerModel>(create: (context) => tickerModel);
 
     return MultiProvider(
       providers: [
-        settingsService,
-        appsService,
-        wallpaperService,
-        tickerModel
+        settingsProvider,
+        appsProvider,
+        wallpaperProvider,
+        tickerProvider
       ],
       child: MaterialApp(
         shortcuts: {

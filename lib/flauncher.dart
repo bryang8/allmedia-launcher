@@ -46,6 +46,7 @@ class FLauncher extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: Consumer<AppsService>(
                   builder: (context, appsService, _) {
+                    print(appsService.initialized);
                     if(!appsService.initialized) {
                       return _emptyState(context);
                     }

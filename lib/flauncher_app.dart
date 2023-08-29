@@ -17,19 +17,21 @@
  */
 
 import 'package:flauncher/actions.dart';
+import 'package:flauncher/providers/apps_service.dart';
+import 'package:flauncher/providers/settings_service.dart';
+import 'package:flauncher/providers/ticker_model.dart';
+import 'package:flauncher/providers/wallpaper_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'database.dart';
 import 'flauncher.dart';
-import 'flauncher_channel.dart';
 
 class FLauncherApp extends StatelessWidget {
-  final ChangeNotifierProvider _settingsService;
-  final ChangeNotifierProvider _appsService;
-  final ChangeNotifierProxyProvider _wallpaperService;
-  final Provider _tickerModel;
+  final SettingsService _settingsService;
+  final AppsService _appsService;
+  final WallpaperService _wallpaperService;
+  final TickerModel _tickerModel;
 
   static const MaterialColor _swatch = MaterialColor(0xFF011526, <int, Color>{
     50: Color(0xFF36A0FA),
@@ -52,25 +54,36 @@ class FLauncherApp extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) => MultiProvider(
+  Widget build(BuildContext context) {
+      var settingsProvider = ChangeNotifierProvider(create: (_) => _settingsService, lazy: false);
+      var appsProvider = ChangeNotifierProvider(create: (_) => _appsService);
+      var wallpaperProvider =  ChangeNotifierProxyProvider<SettingsService, WallpaperService>(
+          create: (_) => _wallpaperService,
+          update: (_, settingsService, wallpaperService) => wallpaperService!..settingsService = settingsService
+      );
+      var tickerProvider = Provider<TickerModel>(create: (context) => _tickerModel);
+
+      return MultiProvider(
         providers: [
-          _settingsService,
-          _appsService,
-          _wallpaperService,
-          _tickerModel
+          settingsProvider,
+          appsProvider,
+          wallpaperProvider,
+          tickerProvider
         ],
         child: MaterialApp(
           shortcuts: {
             ...WidgetsApp.defaultShortcuts,
             SingleActivator(LogicalKeyboardKey.select): ActivateIntent(),
-            SingleActivator(LogicalKeyboardKey.gameButtonB): PrioritizedIntents(orderedIntents: [
+            SingleActivator(LogicalKeyboardKey.gameButtonB):
+                PrioritizedIntents(orderedIntents: [
               DismissIntent(),
               BackIntent(),
             ]),
           },
           actions: {
             ...WidgetsApp.defaultActions,
-            DirectionalFocusIntent: SoundFeedbackDirectionalFocusAction(context),
+            DirectionalFocusIntent:
+                SoundFeedbackDirectionalFocusAction(context),
           },
           title: 'FLauncher',
           theme: ThemeData(
@@ -84,11 +97,14 @@ class FLauncherApp extends StatelessWidget {
             // ignore: deprecated_member_use
             backgroundColor: _swatch[400],
             scaffoldBackgroundColor: _swatch[400],
-            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: Colors.white)),
-            appBarTheme: AppBarTheme(elevation: 0, backgroundColor: Colors.transparent),
+            textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(foregroundColor: Colors.white)),
+            appBarTheme: AppBarTheme(
+                elevation: 0, backgroundColor: Colors.transparent),
             typography: Typography.material2018(),
             inputDecorationTheme: InputDecorationTheme(
-              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white)),
               labelStyle: Typography.material2018().white.bodyMedium,
             ),
             textSelectionTheme: TextSelectionThemeData(
@@ -102,18 +118,16 @@ class FLauncherApp extends StatelessWidget {
               onWillPop: () async {
                 final shouldPop = await shouldPopScope(context);
                 if (!shouldPop) {
-                  //context.read<AppsService>().startAmbientMode();
+                  context.read<AppsService>().startAmbientMode();
                 }
                 return shouldPop;
               },
-              child: Actions(
-                actions: {
-                  BackIntent: BackAction(context, systemNavigator: true)
-                },
-                child: FLauncher()
-              ),
+              child: Actions(actions: {
+                BackIntent: BackAction(context, systemNavigator: true)
+              }, child: FLauncher()),
             ),
           ),
         ),
       );
+  }
 }

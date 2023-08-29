@@ -72,6 +72,10 @@ class AppsService extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  // ignore: must_call_super
+  void dispose() {}
+
   AppsCompanion _buildAppCompanion(dynamic data) => AppsCompanion(
         packageName: Value(data["packageName"]),
         name: Value(data["name"]),
