@@ -58,9 +58,11 @@ class WallpaperService extends ChangeNotifier {
     }
   }
 
+  /*
   @override
   // ignore: must_call_super
   void dispose() {}
+  */
 
   Future<void> pickWallpaper() async {
     if (!await _fLauncherChannel.checkForGetContentAvailability()) {

@@ -66,8 +66,8 @@ class SettingsService extends ChangeNotifier {
 
   @override
   void dispose() {
-    //_remoteConfigRefreshTimer.cancel();
-    //super.dispose();
+    _remoteConfigRefreshTimer.cancel();
+    super.dispose();
   }
 
   Future<void> setCrashReportsEnabled(bool value) async {

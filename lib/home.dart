@@ -21,8 +21,10 @@ import 'dart:ui';
 
 import 'package:flauncher/custom_traversal_policy.dart';
 import 'package:flauncher/database.dart';
+import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/wallpaper_service.dart';
+import 'package:flauncher/widgets/adds/adds_v1.dart';
 import 'package:flauncher/widgets/apps_home_grid.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flauncher/widgets/time_widget.dart';
@@ -131,59 +133,26 @@ class Home extends StatelessWidget {
         ),
       );
 
-  Widget _home(BuildContext context, CategoryWithApps homeCategory, List<App> homeApps) => Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      children:
-      [
-        Container(
-          height: MediaQuery.of(context).size.height * 0.50,
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.30,
-                  padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
-                  child: Column(
-                    children: [
-                      Container(
-                        child: Container(
-                          color: Colors.grey,
-                        ),
-                        padding: EdgeInsets.only(bottom: 4),
-                        height: MediaQuery.of(context).size.height * 0.25,
-                      ),
-                      Container(
-                        child: Container(
-                          color: Colors.grey,
-                        ),
-                        padding: EdgeInsets.only(top: 4),
-                        height: MediaQuery.of(context).size.height * 0.25,
-                      )
-                    ] ,
-                  ),
-                ),
-                Container(
-                  width: (MediaQuery.of(context).size.width * 0.7) - 32,
-                  padding: EdgeInsets.fromLTRB(4,0,0,0),
-                  child: Container(
-                    color: Colors.grey,
-                  ),
-                )
-              ]
-          ),
-        ),
-        //Home Apps
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: AppsHomeGrid(
-            key: Key(homeCategory.category.id.toString()),
-            category: homeCategory.category,
-            applications: homeApps,
-            openAllApps: _openAllApps),
-        )
-      ]
-    ),
-  );
+  Widget _home(BuildContext context, CategoryWithApps homeCategory, List<App> homeApps) {
+    return Center(
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children:
+          [
+            AddsV1Widget(),
+            //Home Apps
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: AppsHomeGrid(
+                  key: Key(homeCategory.category.id.toString()),
+                  category: homeCategory.category,
+                  applications: homeApps,
+                  openAllApps: _openAllApps),
+            )
+          ]
+      ),
+    );
+  }
 }
+

@@ -152,10 +152,14 @@ class HomeApp extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) =>
                             FLauncherApp(
-                                settingsService,
-                                appsService,
-                                wallpaperService,
-                                tickerModel
+                                _sharedPreferences,
+                                _firebaseCrashlytics,
+                                _firebaseAnalytics,
+                                _imagePicker,
+                                _fLauncherChannel,
+                                _fLauncherDatabase,
+                                _unsplashService,
+                                _firebaseRemoteConfig
                             ),
                       )
                   );

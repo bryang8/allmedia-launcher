@@ -7,7 +7,8 @@ class TickerModel {
 
   TickerProvider? get tickerProvider => _tickerProvider;
 
-  @override
+  /*@override
   // ignore: must_call_super
   void dispose() {}
+  */
 }
