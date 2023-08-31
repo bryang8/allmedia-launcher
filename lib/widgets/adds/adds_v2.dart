@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flauncher/models/config_model.dart';
+import 'package:flauncher/widgets/elements/video_card.dart';
 import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 import 'dart:async';
@@ -32,54 +33,58 @@ class AddsState extends State<AdsV2Widget> {
     bool showImages = _images.isNotEmpty;
     double containerHeight = MediaQuery.of(context).size.height * 0.72;
 
-    return Container(
+    return
+      Container(
       height: containerHeight,
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 0.25,
-              padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    child: showImages ? _images[0] : _emptyStateImage(context),
-                    height: containerHeight / 2,
-                  ),
-                  Container(
-                    child: showImages ? _images[1] : _emptyStateImage(context),
-                    padding: EdgeInsets.only(top: 4),
-                    height: containerHeight /2,
-                  )
-                ] ,
+      child: FocusTraversalGroup(
+        policy: OrderedTraversalPolicy(),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      child: showImages ? _images[0] : _emptyStateImage(context),
+                      height: containerHeight / 2,
+                    ),
+                    Container(
+                      child: showImages ? _images[1] : _emptyStateImage(context),
+                      padding: EdgeInsets.only(top: 4),
+                      height: containerHeight /2,
+                    )
+                  ] ,
+                ),
               ),
-            ),
-            Container(
-              width: (MediaQuery.of(context).size.width * 0.5) - 32,
-              padding: EdgeInsets.fromLTRB(4,0,4,0),
-              child: showImages ? _images[2] : _emptyStateImage(context),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.25,
-              padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    child: showImages ? _images[0] : _emptyStateImage(context),
-                    height: containerHeight / 2,
-                  ),
-                  Container(
-                    child: showImages ? _images[1] : _emptyStateImage(context),
-                    padding: EdgeInsets.only(top: 4),
-                    height: containerHeight / 2,
-                  )
-                ] ,
+              Container(
+                width: (MediaQuery.of(context).size.width * 0.5) - 32,
+                padding: EdgeInsets.fromLTRB(4,0,4,0),
+                child: showImages ? _images[2] : _emptyStateImage(context),
               ),
-            )
-          ]
+              Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      child: showImages ? _images[3] : _emptyStateImage(context),
+                      height: containerHeight / 2,
+                    ),
+                    Container(
+                      child: showImages ? _images[4] : _emptyStateImage(context),
+                      padding: EdgeInsets.only(top: 4),
+                      height: containerHeight / 2,
+                    )
+                  ] ,
+                ),
+              )
+            ]
+        ),
       ),
     );
   }
@@ -122,27 +127,45 @@ List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, d
 
   if(images != null) {
     for (var image in images) {
-      var imagePath = image.path;
-      var filename = generateMd5(image.path!);
-      var imageSrc = fileFromPath(dir, filename, image.ext!);
-
-      list.add(_image(context, imagePath, imageSrc));
+      list.add(_image(context, image, dir));
     }
   }
 
   return list;
 }
 
-Widget _image(BuildContext context, url, file)  {
-  return ClipRRect(
-    child: Image(image:NetworkToFileImage(
-        url: url,
-        file: file,
-        debug: true),
-      fit: BoxFit.fill,
-      filterQuality: FilterQuality.high,
+Widget _image(BuildContext context, ConfigsImage image, String dir)  {
+  var url = image.path;
+  var filename = generateMd5(image.path!);
+  var file = fileFromPath(dir, filename, image.ext!);
+
+  return VideoCard(
+      image: image,
+      url: url!,
+      file: file,
+      autofocus: false,
+      onMove: (p0) {
+
+      },
+      onMoveEnd: () {
+
+      }
+  );
+
+  return Focus(
+    canRequestFocus: true,
+    child: ClipRRect(
+      child: Image(
+        image:NetworkToFileImage(
+          url: url,
+          file: file,
+          debug: true
+        ),
+        fit: BoxFit.fill,
+        filterQuality: FilterQuality.high,
+      ),
+      borderRadius: BorderRadius.circular(8.0),
     ),
-    borderRadius: BorderRadius.circular(8.0),
   );
 }
 

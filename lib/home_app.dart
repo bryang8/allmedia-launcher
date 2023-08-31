@@ -80,6 +80,7 @@ class HomeApp extends StatelessWidget {
     var settingsProvider = ChangeNotifierProvider(create: (_) => settingsService, lazy: false);
 
     var appsService = AppsService(_fLauncherChannel, _fLauncherDatabase);
+
     var appsProvider = ChangeNotifierProvider(create: (_) => appsService);
 
     var wallpaperService = WallpaperService(_imagePicker, _fLauncherChannel, _unsplashService);

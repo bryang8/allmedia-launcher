@@ -60,16 +60,11 @@ class Home extends StatelessWidget {
                         version: "0",
                         hidden: false,
                         sideloaded: false,
-                        //banner: _allAppsBanner,
+                        banner: _allAppsBanner,
                         icon: _allAppsIcon
                     );
 
-                    var homeCategory = appsService.categoriesWithApps[0];
-                    List<App> homeAppsList = homeCategory.applications.toList();
-
-                    homeAppsList.insert(0, appMenu);
-
-                    return AppsViewer(appsService.categoriesWithApps, homeCategory, homeAppsList);
+                    return AppsViewer(appMenu);
                   }
                 ),
               ),

@@ -1,6 +1,7 @@
 
 import 'package:flauncher/actions.dart';
 import 'package:flauncher/database.dart';
+import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/widgets/adds/adds_v1.dart';
 import 'package:flauncher/widgets/adds/adds_v2.dart';
 import 'package:flauncher/widgets/grids/apps_grid.dart';
@@ -8,42 +9,37 @@ import 'package:flauncher/widgets/category_row.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid_2.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 enum ViewerStates {
   Home1, Home2, AllApps, None
 }
 
 class AppsViewer extends StatefulWidget {
-  final List<CategoryWithApps> categoriesWithApps;
-  final CategoryWithApps homeCategory;
-  final List<App> homeApps;
-
-  AppsViewer(
-    this.categoriesWithApps,
-    this.homeCategory,
-    this.homeApps,
-  );
+  final App appMenu;
+  AppsViewer(this.appMenu);
 
   @override
-  State<AppsViewer> createState() => AppsViewerState(
-      categoriesWithApps,
-      homeCategory,
-      homeApps
-  );
-
+  State<AppsViewer> createState() => AppsViewerState(appMenu);
 }
 
 class AppsViewerState extends State<AppsViewer> {
+  final App appMenu;
   ViewerStates state = ViewerStates.Home2;
   ViewerStates prevState = ViewerStates.Home2;
-  List<CategoryWithApps> categoriesWithApps;
-  CategoryWithApps homeCategory;
-  List<App> homeApps;
 
-  AppsViewerState(this.categoriesWithApps, this.homeCategory, this.homeApps);
+  AppsViewerState(this.appMenu);
 
   @override
   Widget build(BuildContext context) {
+    var appsService = context.read<AppsService>();
+    var categoriesWithApps = appsService.categoriesWithApps;
+
+    var homeCategory = appsService.categoriesWithApps[0];
+    List<App> homeApps = homeCategory.applications.toList();
+
+    homeApps.insert(0, appMenu);
+
     if(state != ViewerStates.AllApps && state != ViewerStates.None) {
       return WillPopScope (
         onWillPop: () async {
@@ -54,7 +50,7 @@ class AppsViewerState extends State<AppsViewer> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: state == ViewerStates.Home1
-                ? Home1Widgets() : Home2Widgets()
+                ? Home1Widgets(homeCategory, homeApps) : Home2Widgets(homeCategory, homeApps)
           ),
         )
       );
@@ -95,7 +91,7 @@ class AppsViewerState extends State<AppsViewer> {
     }).toList(),
   );
 
-  List<Widget> Home1Widgets() {
+  List<Widget> Home1Widgets(homeCategory, homeApps) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 8 ? 8 : homeApps.length);
 
@@ -120,7 +116,7 @@ class AppsViewerState extends State<AppsViewer> {
       ];
   }
 
-  List<Widget> Home2Widgets() {
+  List<Widget> Home2Widgets(homeCategory, homeApps) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 7 ? 7 : homeApps.length);
 

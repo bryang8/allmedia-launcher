@@ -17,6 +17,7 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flauncher/actions.dart';
 import 'package:flauncher/database.dart';
