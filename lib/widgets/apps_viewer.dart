@@ -1,6 +1,9 @@
 
-import 'package:flauncher/actions.dart';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flauncher/database.dart';
+import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/widgets/adds/adds_v1.dart';
 import 'package:flauncher/widgets/adds/adds_v2.dart';
@@ -9,10 +12,15 @@ import 'package:flauncher/widgets/category_row.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid_2.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:network_to_file_image/network_to_file_image.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
+import 'package:crypto/crypto.dart';
 
 enum ViewerStates {
-  Home1, Home2, AllApps, None
+  Home1, Home2, AllApps
 }
 
 class AppsViewer extends StatefulWidget {
@@ -25,13 +33,19 @@ class AppsViewer extends StatefulWidget {
 
 class AppsViewerState extends State<AppsViewer> {
   final App appMenu;
-  ViewerStates state = ViewerStates.Home2;
-  ViewerStates prevState = ViewerStates.Home2;
+  ConfigsModel config = ConfigsModel(launcher: "0");
+  ViewerStates selectedHome = ViewerStates.AllApps;
+  ViewerStates state = ViewerStates.AllApps;
+  bool fetch = true;
+  List<Widget> _images = List.empty();
+  bool starting = false;
 
   AppsViewerState(this.appMenu);
 
   @override
   Widget build(BuildContext context) {
+    if(fetch) startFetchingImages(context);
+
     var appsService = context.read<AppsService>();
     var categoriesWithApps = appsService.categoriesWithApps;
 
@@ -40,7 +54,7 @@ class AppsViewerState extends State<AppsViewer> {
 
     homeApps.insert(0, appMenu);
 
-    if(state != ViewerStates.AllApps && state != ViewerStates.None) {
+    if(state != ViewerStates.AllApps) {
       return WillPopScope (
         onWillPop: () async {
           return false;
@@ -50,7 +64,8 @@ class AppsViewerState extends State<AppsViewer> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: state == ViewerStates.Home1
-                ? Home1Widgets(homeCategory, homeApps) : Home2Widgets(homeCategory, homeApps)
+                ? Home1Widgets(homeCategory, homeApps, _images)
+                : Home2Widgets(homeCategory, homeApps, config.images)
           ),
         )
       );
@@ -59,7 +74,8 @@ class AppsViewerState extends State<AppsViewer> {
       return WillPopScope(
         onWillPop: () async {
           setState(() {
-            state = prevState;
+            state = selectedHome;
+            fetch = false;
           });
           return false;
         },
@@ -91,13 +107,13 @@ class AppsViewerState extends State<AppsViewer> {
     }).toList(),
   );
 
-  List<Widget> Home1Widgets(homeCategory, homeApps) {
+  List<Widget> Home1Widgets(homeCategory, homeApps, _images) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 8 ? 8 : homeApps.length);
 
     return
       [
-        AddsV1Widget(),
+        AddsV1Widget(_images),
         //Home Apps
         Container(
           padding: EdgeInsets.symmetric(vertical: 16),
@@ -108,15 +124,15 @@ class AppsViewerState extends State<AppsViewer> {
             applications: appsList,
             openAllApps: () {
               setState(() {
-                prevState = state;
                 state = ViewerStates.AllApps;
+                fetch = true;
               });
             }),
         )
       ];
   }
 
-  List<Widget> Home2Widgets(homeCategory, homeApps) {
+  List<Widget> Home2Widgets(homeCategory, homeApps, images) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 7 ? 7 : homeApps.length);
 
@@ -133,11 +149,87 @@ class AppsViewerState extends State<AppsViewer> {
             applications: appsList,
             openAllApps: () {
               setState(() {
-                prevState = state;
                 state = ViewerStates.AllApps;
+                fetch = true;
               });
             }),
         )
       ];
   }
+
+  void startFetchingImages(BuildContext context) {
+    fetchConfig().then((configResponse) {
+      if(configResponse != null) {
+        if(configResponse.launcher == "1") {
+          selectedHome = ViewerStates.Home1;
+          getApplicationDocumentsDirectory().then((dir) {
+            setState(() {
+              config = configResponse;
+              selectedHome = selectedHome;
+              state = (this.config.launcher != "1")
+                  ? selectedHome : state;
+              fetch = false;
+              _images = convertConfigImagesToWidgets(context, configResponse.images, dir.path);
+            });
+          });
+        }
+        else {
+          selectedHome = ViewerStates.Home2;
+          setState(() {
+            config = configResponse;
+            selectedHome = selectedHome;
+            state = (this.config.launcher != "2")
+                ? selectedHome : state;
+            fetch = false;
+          });
+        }
+      }
+    });
+  }
+
+  Future<ConfigsModel?> fetchConfig() async {
+    final response = await http
+        .get(Uri.parse('https://api.mockfly.dev/mocks/fa7c156d-0223-4daf-ae7a-3feb306a3460/v1/config'));
+
+    if (response.statusCode == 200) {
+      return ConfigsModel.fromJson(jsonDecode(response.body));
+    } else {
+      return null;
+    }
+  }
+}
+
+List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, dir) {
+  var list = List<Widget>.empty(growable: true);
+
+  if(images != null) {
+    for (var image in images) {
+      var imagePath = image.path;
+      var filename = generateMd5(image.path!);
+      var imageSrc = fileFromPath(dir, filename, image.ext!);
+
+      list.add(_image(context, imagePath, imageSrc));
+    }
+  }
+
+  return list;
+}
+
+Widget _image(BuildContext context, url, file)  {
+  return Image(image:NetworkToFileImage(
+      url: url,
+      file: file,
+      debug: true),
+    fit: BoxFit.fill,
+    filterQuality: FilterQuality.high,
+  );
+}
+
+File fileFromPath(String dir, String filename, String ext) {
+  String pathName = p.join(dir, (filename + '.' + ext));
+  return File(pathName);
+}
+
+String generateMd5(String input) {
+  return md5.convert(utf8.encode(input)).toString();
 }
