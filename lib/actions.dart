@@ -53,4 +53,19 @@ class BackIntent extends Intent {
   const BackIntent();
 }
 
+class PrevStateAction extends Action<PrevStateIntent> {
+  final Function _backFunction;
+
+  PrevStateAction(this._backFunction);
+
+  @override
+  Future<void> invoke(PrevStateIntent intent) async {
+    _backFunction();
+  }
+}
+
+class PrevStateIntent extends Intent {
+  const PrevStateIntent();
+}
+
 Future<bool> shouldPopScope(BuildContext context) async => !await context.read<AppsService>().isDefaultLauncher();

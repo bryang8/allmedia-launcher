@@ -18,7 +18,7 @@
 
 import 'package:flauncher/database.dart';
 import 'package:flauncher/providers/apps_service.dart';
-import 'package:flauncher/widgets/app_card.dart';
+import 'package:flauncher/widgets/elements/app_card.dart';
 import 'package:flauncher/widgets/ensure_visible.dart';
 import 'package:flauncher/widgets/settings/categories_panel_page.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';

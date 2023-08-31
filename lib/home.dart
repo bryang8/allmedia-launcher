@@ -21,11 +21,9 @@ import 'dart:ui';
 
 import 'package:flauncher/custom_traversal_policy.dart';
 import 'package:flauncher/database.dart';
-import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/wallpaper_service.dart';
-import 'package:flauncher/widgets/adds/adds_v1.dart';
-import 'package:flauncher/widgets/apps_home_grid.dart';
+import 'package:flauncher/widgets/apps_viewer.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flauncher/widgets/time_widget.dart';
 import 'package:flutter/material.dart';
@@ -33,9 +31,9 @@ import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   final Uint8List _allAppsBanner;
-  final Function _openAllApps;
+  final Uint8List _allAppsIcon;
 
-  Home(this._allAppsBanner, this._openAllApps);
+  Home(this._allAppsBanner, this._allAppsIcon);
 
   @override
   Widget build(BuildContext context) => FocusTraversalGroup(
@@ -58,11 +56,12 @@ class Home extends StatelessWidget {
 
                     var appMenu = App(
                         packageName: "menu",
-                        name: "All Apps",
+                        name: "Todas las apps",
                         version: "0",
                         hidden: false,
                         sideloaded: false,
-                        banner: _allAppsBanner
+                        //banner: _allAppsBanner,
+                        icon: _allAppsIcon
                     );
 
                     var homeCategory = appsService.categoriesWithApps[0];
@@ -70,7 +69,7 @@ class Home extends StatelessWidget {
 
                     homeAppsList.insert(0, appMenu);
 
-                    return _home(context, homeCategory, homeAppsList);
+                    return AppsViewer(appsService.categoriesWithApps, homeCategory, homeAppsList);
                   }
                 ),
               ),
@@ -132,27 +131,5 @@ class Home extends StatelessWidget {
           ],
         ),
       );
-
-  Widget _home(BuildContext context, CategoryWithApps homeCategory, List<App> homeApps) {
-    return Center(
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children:
-          [
-            AddsV1Widget(),
-            //Home Apps
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: AppsHomeGrid(
-                  key: Key(homeCategory.category.id.toString()),
-                  category: homeCategory.category,
-                  applications: homeApps,
-                  openAllApps: _openAllApps),
-            )
-          ]
-      ),
-    );
-  }
 }
 

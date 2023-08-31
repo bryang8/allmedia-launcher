@@ -46,6 +46,7 @@ class HomeApp extends StatelessWidget {
   final UnsplashService _unsplashService;
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final Uint8List _allAppsBanner;
+  final Uint8List _allAppsIcon;
 
   static const MaterialColor _swatch = MaterialColor(0xFF011526, <int, Color>{
     50: Color(0xFF36A0FA),
@@ -69,7 +70,8 @@ class HomeApp extends StatelessWidget {
     this._fLauncherDatabase,
     this._unsplashService,
     this._firebaseRemoteConfig,
-    this._allAppsBanner
+    this._allAppsBanner,
+    this._allAppsIcon
   );
 
   @override
@@ -135,37 +137,8 @@ class HomeApp extends StatelessWidget {
           ),
         ),
         home: Builder(
-          builder: (context) => WillPopScope(
-            onWillPop: () async {
-              final shouldPop = await shouldPopScope(context);
-              if (!shouldPop) {
-                context.read<AppsService>().startAmbientMode();
-              }
-              return shouldPop;
-            },
-            child: Actions(
-                actions: {
-                  BackIntent: BackAction(context, systemNavigator: true)
-                },
-                child: Home(_allAppsBanner, () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            FLauncherApp(
-                                _sharedPreferences,
-                                _firebaseCrashlytics,
-                                _firebaseAnalytics,
-                                _imagePicker,
-                                _fLauncherChannel,
-                                _fLauncherDatabase,
-                                _unsplashService,
-                                _firebaseRemoteConfig
-                            ),
-                      )
-                  );
-                }
-                )
-            ),
+          builder: (context) => Home(
+              _allAppsBanner, _allAppsIcon
           ),
         ),
       ),

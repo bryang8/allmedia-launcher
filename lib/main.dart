@@ -43,8 +43,10 @@ Future<void> main() async {
   await Firebase.initializeApp();
   final firebaseCrashlytics = FirebaseCrashlytics.instance;
 
-  final ByteData bytes = await rootBundle.load('assets/allapps.png');
-  final Uint8List allAppsBanner = bytes.buffer.asUint8List();
+  final Uint8List allAppsBanner = (await rootBundle.load('assets/allapps.png'))
+      .buffer.asUint8List();
+  final Uint8List allAppsIcon = (await rootBundle.load('assets/allapps_icon.png'))
+      .buffer.asUint8List();
 
   FlutterError.onError = firebaseCrashlytics.recordFlutterError;
   Isolate.current.addErrorListener(RawReceivePort((List<dynamic> pair) async => await firebaseCrashlytics.recordError(
@@ -80,7 +82,8 @@ Future<void> main() async {
         fLauncherDatabase,
         unsplashService,
         remoteConfig,
-        allAppsBanner
+        allAppsBanner,
+        allAppsIcon
       ),
     );
   }, firebaseCrashlytics.recordError);

@@ -18,38 +18,45 @@
 
 import 'dart:math';
 
-import 'package:flauncher/actions.dart';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/providers/apps_service.dart';
-import 'package:flauncher/widgets/app_card.dart';
+import 'package:flauncher/widgets/elements/app_card.dart';
 import 'package:flauncher/widgets/ensure_visible.dart';
 import 'package:flauncher/widgets/settings/categories_panel_page.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AppsHomeGrid extends StatelessWidget {
+class AppsGrid extends StatelessWidget {
   final Category category;
   final List<App> applications;
-  final Function openAllApps;
 
-  AppsHomeGrid({
+  AppsGrid({
     Key? key,
     required this.category,
     required this.applications,
-    required this.openAllApps
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: EdgeInsets.only(left: 16),
+            child: Text(
+              category.name,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge!
+                  .copyWith(shadows: [Shadow(color: Colors.black54, offset: Offset(1, 1), blurRadius: 8)]),
+            ),
+          ),
           applications.isNotEmpty
               ? GridView.custom(
                   shrinkWrap: true,
                   primary: false,
                   gridDelegate: _buildSliverGridDelegate(),
-                  padding: EdgeInsets.all(0),
+                  padding: EdgeInsets.all(16),
                   childrenDelegate: SliverChildBuilderDelegate(
                     (context, index) => EnsureVisible(
                       key: Key("${category.id}-${applications[index].packageName}"),
@@ -60,8 +67,7 @@ class AppsHomeGrid extends StatelessWidget {
                         autofocus: index == 0,
                         onMove: (direction) => _onMove(context, direction, index),
                         onMoveEnd: () => _saveOrder(context),
-                        customAction: applications[index].packageName == 'menu'
-                            ? openAllApps : (){},
+                        customAction: () {},
                       ),
                     ),
                     childCount: applications.length,
@@ -114,8 +120,8 @@ class AppsHomeGrid extends StatelessWidget {
   }
 
   SliverGridDelegate _buildSliverGridDelegate() => SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 16 / 6,
+        crossAxisCount: category.columnsCount,
+        childAspectRatio: 16 / 9,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       );
