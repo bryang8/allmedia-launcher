@@ -1,11 +1,11 @@
 class ConfigsModel {
-  String? launcher;
+  int? launcher;
   List<ConfigsImage>? images;
 
   ConfigsModel({this.launcher, this.images});
 
   ConfigsModel.fromJson(Map<String, dynamic> json) {
-    launcher = json['launcher'];
+    launcher = json['launcher_id'];
     if (json['images'] != null) {
       images = <ConfigsImage>[];
       json['images'].forEach((v) {
@@ -16,7 +16,7 @@ class ConfigsModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['launcher'] = launcher;
+    data['launcher_id'] = launcher;
     if (images != null) {
       data['images'] = images!.map((v) => v.toJson()).toList();
     }

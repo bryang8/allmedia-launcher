@@ -115,6 +115,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
               clipBehavior: Clip.antiAlias,
               elevation: Focus.of(context).hasFocus ? 16 : 0,
               shadowColor: Colors.black,
+              color: Color.fromRGBO(16,16,16,1),
               child: Stack(
                 fit: StackFit.expand,
                 children: [

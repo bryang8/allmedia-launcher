@@ -35,7 +35,7 @@ class AddsState extends State<AddsV1Widget> {
                     height: MediaQuery.of(context).size.height * 0.25,
                   ),
                   Container(
-                    child: showImages ? _images[1] : _emptyStateImage(context),
+                    child: showImages ? _images[2] : _emptyStateImage(context),
                     padding: EdgeInsets.only(top: 4),
                     height: MediaQuery.of(context).size.height * 0.25,
                   )
@@ -45,7 +45,7 @@ class AddsState extends State<AddsV1Widget> {
             Container(
               width: (MediaQuery.of(context).size.width * 0.7) - 32,
               padding: EdgeInsets.fromLTRB(4,0,0,0),
-              child: showImages ? _images[2] : _emptyStateImage(context),
+              child: showImages ? _images[1] : _emptyStateImage(context),
             )
 
           ]

@@ -32,8 +32,9 @@ import 'package:provider/provider.dart';
 class Home extends StatelessWidget {
   final Uint8List _allAppsBanner;
   final Uint8List _allAppsIcon;
+  final String _macAddress;
 
-  Home(this._allAppsBanner, this._allAppsIcon);
+  Home(this._allAppsBanner, this._allAppsIcon, this._macAddress);
 
   @override
   Widget build(BuildContext context) => FocusTraversalGroup(
@@ -64,7 +65,7 @@ class Home extends StatelessWidget {
                         icon: _allAppsIcon
                     );
 
-                    return AppsViewer(appMenu);
+                    return AppsViewer(appMenu, _macAddress);
                   }
                 ),
               ),

@@ -27,6 +27,7 @@ dependencies:
   webview_flutter: ^4.0.5
   network_to_file_image: ^4.0.1
   url_launcher: ^6.1.13
+  mac_address: ^1.0.0
 
 dev_dependencies:
   flutter_test:

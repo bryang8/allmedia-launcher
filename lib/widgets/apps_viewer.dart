@@ -23,24 +23,32 @@ enum ViewerStates {
   Home1, Home2, AllApps
 }
 
+final apiDomain = "http://backend.am4.tv/";
+
 class AppsViewer extends StatefulWidget {
   final App appMenu;
-  AppsViewer(this.appMenu);
+  final String macAddress;
+
+  AppsViewer(this.appMenu, this.macAddress);
 
   @override
-  State<AppsViewer> createState() => AppsViewerState(appMenu);
+  State<AppsViewer> createState() => AppsViewerState(appMenu, macAddress);
 }
 
 class AppsViewerState extends State<AppsViewer> {
   final App appMenu;
-  ConfigsModel config = ConfigsModel(launcher: "0");
+  final String macAddress;
+
+  ConfigsModel config = ConfigsModel(launcher: 0);
   ViewerStates selectedHome = ViewerStates.AllApps;
   ViewerStates state = ViewerStates.AllApps;
   bool fetch = true;
   List<Widget> _images = List.empty();
+  List<String> _links = List.empty();
+
   bool starting = false;
 
-  AppsViewerState(this.appMenu);
+  AppsViewerState(this.appMenu, this.macAddress);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +73,7 @@ class AppsViewerState extends State<AppsViewer> {
               mainAxisSize: MainAxisSize.max,
               children: state == ViewerStates.Home1
                 ? Home1Widgets(homeCategory, homeApps, _images)
-                : Home2Widgets(homeCategory, homeApps, config.images)
+                : Home2Widgets(homeCategory, homeApps, _images, _links)
           ),
         )
       );
@@ -132,13 +140,13 @@ class AppsViewerState extends State<AppsViewer> {
       ];
   }
 
-  List<Widget> Home2Widgets(homeCategory, homeApps, images) {
+  List<Widget> Home2Widgets(homeCategory, homeApps, _images, _inks) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 7 ? 7 : homeApps.length);
 
     return
       [
-        AdsV2Widget(),
+        AdsV2Widget(_images, _links),
         //Home Apps
         Container(
           padding: EdgeInsets.symmetric(vertical: 16),
@@ -158,41 +166,51 @@ class AppsViewerState extends State<AppsViewer> {
   }
 
   void startFetchingImages(BuildContext context) {
-    fetchConfig().then((configResponse) {
-      if(configResponse != null) {
-        if(configResponse.launcher == "1") {
-          selectedHome = ViewerStates.Home1;
-          getApplicationDocumentsDirectory().then((dir) {
+    //timer = Timer.periodic(Duration(seconds: 60), (Timer t) {
+    fetchConfig(macAddress).then((configResponse) {
+      if (configResponse != null) {
+        getApplicationDocumentsDirectory().then((dir) {
+          if (configResponse.launcher == 1) {
+            selectedHome = ViewerStates.Home1;
             setState(() {
               config = configResponse;
               selectedHome = selectedHome;
-              state = (this.config.launcher != "1")
+              state = (this.config.launcher != 1)
                   ? selectedHome : state;
               fetch = false;
-              _images = convertConfigImagesToWidgets(context, configResponse.images, dir.path);
+              _images = convertConfigImagesToWidgets(
+                  context, configResponse.images, dir.path);
             });
-          });
-        }
-        else {
-          selectedHome = ViewerStates.Home2;
-          setState(() {
-            config = configResponse;
-            selectedHome = selectedHome;
-            state = (this.config.launcher != "2")
-                ? selectedHome : state;
-            fetch = false;
-          });
-        }
+          }
+          else {
+            selectedHome = ViewerStates.Home2;
+            setState(() {
+              config = configResponse;
+              selectedHome = selectedHome;
+              state = (this.config.launcher != 2) ? selectedHome : state;
+              fetch = false;
+              _images = convertConfigImagesToWidgets(
+                  context, configResponse.images, dir.path);
+              _links = configResponse.images!.map((i) => i.link!).toList();
+            });
+          }
+        });
       }
     });
+    //});
   }
 
-  Future<ConfigsModel?> fetchConfig() async {
-    final response = await http
-        .get(Uri.parse('https://api.mockfly.dev/mocks/fa7c156d-0223-4daf-ae7a-3feb306a3460/v1/config'));
+  Future<ConfigsModel?> fetchConfig(String macAddress) async {
+    final uri = Uri.parse(apiDomain+'api/device/device/'+macAddress);
+    final response = await http.get(uri);
 
+    print(response.statusCode);
     if (response.statusCode == 200) {
-      return ConfigsModel.fromJson(jsonDecode(response.body));
+      var model = ConfigsModel.fromJson(jsonDecode(response.body));
+
+      print(model.launcher);
+
+      return model;
     } else {
       return null;
     }
@@ -217,7 +235,7 @@ List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, d
 
 Widget _image(BuildContext context, url, file)  {
   return Image(image:NetworkToFileImage(
-      url: url,
+      url: apiDomain + url,
       file: file,
       debug: true),
     fit: BoxFit.fill,

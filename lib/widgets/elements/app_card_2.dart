@@ -120,7 +120,7 @@ class _AppCardState extends State<AppCard2> with SingleTickerProviderStateMixin 
                     .of(context)
                     .hasFocus ? 16 : 0,
                 shadowColor: Colors.black,
-                color: Colors.white.withOpacity(1),
+                color: Color.fromRGBO(16,16,16,1),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [

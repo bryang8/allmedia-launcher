@@ -33,9 +33,9 @@ import 'package:url_launcher/url_launcher.dart';
 const _validationKeys = [LogicalKeyboardKey.select, LogicalKeyboardKey.enter, LogicalKeyboardKey.gameButtonA];
 
 class VideoCard extends StatefulWidget {
-  final ConfigsImage image;
-  final String url;
-  final File file;
+  final Widget image;
+  final String link;
+  final int id;
   final bool autofocus;
   final void Function(AxisDirection) onMove;
   final VoidCallback onMoveEnd;
@@ -43,8 +43,8 @@ class VideoCard extends StatefulWidget {
   VideoCard({
     Key? key,
     required this.image,
-    required this.url,
-    required this.file,
+    required this.link,
+    required this.id,
     required this.autofocus,
     required this.onMove,
     required this.onMoveEnd,
@@ -52,16 +52,16 @@ class VideoCard extends StatefulWidget {
 
   @override
   _VideoCard createState() {
-    return _VideoCard(image, url, file);
+    return _VideoCard(image, id, link);
   }
 }
 
 class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
-  final ConfigsImage image;
-  final String url;
-  final File file;
+  final Widget image;
+  final int id;
+  final String link;
 
-  _VideoCard(this.image, this.url, this.file);
+  _VideoCard(this.image, this.id, this.link);
 
   bool _moving = false;
   MemoryImage? _imageProvider;
@@ -98,18 +98,11 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  ImageProvider _cachedMemoryImage(Uint8List bytes) {
-    if (!listEquals(bytes, _imageProvider?.bytes)) {
-      _imageProvider = MemoryImage(bytes);
-    }
-    return _imageProvider!;
-  }
-
   @override
   Widget build(BuildContext context) => FocusKeyboardListener(
     onPressed: (key) => _onPressed(context, key),
     builder: (context) => FocusTraversalOrder(
-      order: NumericFocusOrder(image.id!.toDouble()),
+      order: NumericFocusOrder(id!.toDouble()),
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         curve: Curves.easeInOut,
@@ -127,15 +120,7 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
                 autofocus: widget.autofocus,
                 focusColor: Colors.transparent,
                 onTap: () => _onPressed(context, null),
-                child: Image(
-                  image:NetworkToFileImage(
-                      url: url,
-                      file: file,
-                      debug: true
-                  ),
-                  fit: BoxFit.fill,
-                  filterQuality: FilterQuality.high,
-                ),
+                child: image,
               ),
               IgnorePointer(
                 child: AnimatedOpacity(
@@ -191,7 +176,7 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
 
   KeyEventResult _onPressed(BuildContext context, LogicalKeyboardKey? key) {
     if (_validationKeys.contains(key)) {
-      var uri =  Uri.parse(image.link!);
+      var uri =  Uri.parse(link);
       _launchUrl(uri);
 
       return KeyEventResult.handled;

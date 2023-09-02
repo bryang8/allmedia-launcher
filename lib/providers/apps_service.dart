@@ -49,7 +49,8 @@ class AppsService extends ChangeNotifier {
   Future<void> _init() async {
     await _refreshState(shouldNotifyListeners: false);
     if (_database.wasCreated) {
-      await _initDefaultCategories();
+      await _initTvApps();
+      await _initNonTvApps();
     }
     _fLauncherChannel.addAppsChangedListener((event) async {
       switch (event["action"]) {
@@ -86,39 +87,42 @@ class AppsService extends ChangeNotifier {
         sideloaded: Value(data["sideloaded"]),
       );
 
-  Future<void> _initDefaultCategories() => _database.transaction(() async {
-        final tvApplications = _applications.where((element) => element.sideloaded == false);
-        final nonTvApplications = _applications.where((element) => element.sideloaded == true);
-        if (tvApplications.isNotEmpty) {
-          await addCategory("TV Applications", shouldNotifyListeners: false);
-          final tvAppsCategory =
-              _categoriesWithApps.map((e) => e.category).firstWhere((element) => element.name == "TV Applications");
-          await setCategoryType(
-            tvAppsCategory,
-            CategoryType.grid,
-            shouldNotifyListeners: false,
-          );
-          for (final app in tvApplications) {
-            await addToCategory(app, tvAppsCategory, shouldNotifyListeners: false);
-          }
-        }
-        if (nonTvApplications.isNotEmpty) {
-          await addCategory(
-            "Non-TV Applications",
-            shouldNotifyListeners: false,
-          );
-          final nonTvAppsCategory =
-              _categoriesWithApps.map((e) => e.category).firstWhere((element) => element.name == "Non-TV Applications");
-          for (final app in nonTvApplications) {
-            await addToCategory(
-              app,
-              nonTvAppsCategory,
-              shouldNotifyListeners: false,
-            );
-          }
-        }
-        _categoriesWithApps = await _database.listCategoriesWithVisibleApps();
-      });
+  Future<void> _initTvApps() => _database.transaction(() async {
+    final tvApplications = _applications.where((element) => element.sideloaded == false);
+    if (tvApplications.isNotEmpty) {
+      await addCategory("TV Applications", shouldNotifyListeners: false);
+      final tvAppsCategory =
+          _categoriesWithApps.map((e) => e.category).firstWhere((element) => element.name == "TV Applications");
+      await setCategoryType(
+        tvAppsCategory,
+        CategoryType.grid,
+        shouldNotifyListeners: false,
+      );
+      for (final app in tvApplications) {
+        await addToCategory(app, tvAppsCategory, shouldNotifyListeners: false);
+      }
+    }
+  });
+
+  Future<void> _initNonTvApps() => _database.transaction(() async {
+    final nonTvApplications = _applications.where((element) => element.sideloaded == true);
+    if (nonTvApplications.isNotEmpty) {
+      await addCategory(
+      "Non-TV Applications",
+      shouldNotifyListeners: false,
+    );
+    final nonTvAppsCategory =
+      _categoriesWithApps.map((e) => e.category).firstWhere((element) => element.name == "Non-TV Applications");
+    for (final app in nonTvApplications) {
+      await addToCategory(
+        app,
+        nonTvAppsCategory,
+        shouldNotifyListeners: false,
+      );
+    }
+  }
+  _categoriesWithApps = await _database.listCategoriesWithVisibleApps();
+  });
 
   Future<void> _refreshState({bool shouldNotifyListeners = true}) async {
     await _database.transaction(() async {

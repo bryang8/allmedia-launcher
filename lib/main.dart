@@ -31,6 +31,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mac_address/mac_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
@@ -47,6 +48,8 @@ Future<void> main() async {
       .buffer.asUint8List();
   final Uint8List allAppsIcon = (await rootBundle.load('assets/allapps_icon.png'))
       .buffer.asUint8List();
+  final macAddress = await GetMac.macAddress;
+  print(macAddress);
 
   FlutterError.onError = firebaseCrashlytics.recordFlutterError;
   Isolate.current.addErrorListener(RawReceivePort((List<dynamic> pair) async => await firebaseCrashlytics.recordError(
@@ -83,7 +86,8 @@ Future<void> main() async {
         unsplashService,
         remoteConfig,
         allAppsBanner,
-        allAppsIcon
+        allAppsIcon,
+        macAddress
       ),
     );
   }, firebaseCrashlytics.recordError);

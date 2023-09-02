@@ -46,6 +46,7 @@ class HomeApp extends StatelessWidget {
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final Uint8List _allAppsBanner;
   final Uint8List _allAppsIcon;
+  final String _macAddress;
 
   static const MaterialColor _swatch = MaterialColor(0xFF011526, <int, Color>{
     50: Color(0xFF36A0FA),
@@ -70,7 +71,8 @@ class HomeApp extends StatelessWidget {
     this._unsplashService,
     this._firebaseRemoteConfig,
     this._allAppsBanner,
-    this._allAppsIcon
+    this._allAppsIcon,
+    this._macAddress
   );
 
   @override
@@ -138,7 +140,7 @@ class HomeApp extends StatelessWidget {
         ),
         home: Builder(
           builder: (context) => Home(
-              _allAppsBanner, _allAppsIcon
+              _allAppsBanner, _allAppsIcon, _macAddress
           ),
         ),
       ),
