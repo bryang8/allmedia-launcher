@@ -7,11 +7,13 @@ import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/widgets/adds/adds_v1.dart';
 import 'package:flauncher/widgets/adds/adds_v2.dart';
+import 'package:flauncher/widgets/elements/video_card.dart';
 import 'package:flauncher/widgets/grids/apps_grid.dart';
 import 'package:flauncher/widgets/category_row.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid_2.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -70,10 +72,10 @@ class AppsViewerState extends State<AppsViewer> {
         child: Center(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.min,
               children: state == ViewerStates.Home1
                 ? Home1Widgets(homeCategory, homeApps, _images)
-                : Home2Widgets(homeCategory, homeApps, _images, _links)
+                : Home2Widgets(homeCategory, homeApps, _images)
           ),
         )
       );
@@ -105,7 +107,7 @@ class AppsViewerState extends State<AppsViewer> {
           );
         case CategoryType.grid:
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: 0),
             child: AppsGrid(
                 key: Key(categoryWithApps.category.id.toString()),
                 category: categoryWithApps.category,
@@ -117,16 +119,16 @@ class AppsViewerState extends State<AppsViewer> {
 
   List<Widget> Home1Widgets(homeCategory, homeApps, _images) {
     var appsList = homeApps
-        .sublist(0, homeApps.length > 8 ? 8 : homeApps.length);
+        .sublist(0, homeApps.length > 10 ? 10 : homeApps.length);
 
     return
       [
         AddsV1Widget(_images),
         //Home Apps
         Container(
-          padding: EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.only(top: 16),
           child: AppsHomeGrid(
-            itemsPerRow: 4,
+            itemsPerRow: 5,
             key: Key(homeCategory.category.id.toString()),
             category: homeCategory.category,
             applications: appsList,
@@ -140,13 +142,13 @@ class AppsViewerState extends State<AppsViewer> {
       ];
   }
 
-  List<Widget> Home2Widgets(homeCategory, homeApps, _images, _inks) {
+  List<Widget> Home2Widgets(homeCategory, homeApps, _images) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 7 ? 7 : homeApps.length);
 
     return
       [
-        AdsV2Widget(_images, _links),
+        AdsV2Widget(_images),
         //Home Apps
         Container(
           padding: EdgeInsets.symmetric(vertical: 16),
@@ -179,7 +181,7 @@ class AppsViewerState extends State<AppsViewer> {
                   ? selectedHome : state;
               fetch = false;
               _images = convertConfigImagesToWidgets(
-                  context, configResponse.images, dir.path);
+                  context, configResponse.images, dir.path, 3);
             });
           }
           else {
@@ -190,7 +192,7 @@ class AppsViewerState extends State<AppsViewer> {
               state = (this.config.launcher != 2) ? selectedHome : state;
               fetch = false;
               _images = convertConfigImagesToWidgets(
-                  context, configResponse.images, dir.path);
+                  context, configResponse.images, dir.path, 5);
               _links = configResponse.images!.map((i) => i.link!).toList();
             });
           }
@@ -209,6 +211,9 @@ class AppsViewerState extends State<AppsViewer> {
       var model = ConfigsModel.fromJson(jsonDecode(response.body));
 
       print(model.launcher);
+      model.images?.forEach((list) {
+        print(list.id.toString() + ' : ' + list.path!);
+      });
 
       return model;
     } else {
@@ -217,29 +222,49 @@ class AppsViewerState extends State<AppsViewer> {
   }
 }
 
-List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, dir) {
+List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, dir, int minLen) {
   var list = List<Widget>.empty(growable: true);
 
-  if(images != null) {
-    for (var image in images) {
-      var imagePath = image.path;
-      var filename = generateMd5(image.path!);
-      var imageSrc = fileFromPath(dir, filename, image.ext!);
+  for(int i = 0; i < minLen; i ++) {
+    if(images == null) {
+      list.add(_emptyStateImage());
+    }
+    else {
+      var image = images?.where((element) => element.id == i).firstOrNull;
+      if(image != null){
+        var imagePath = image.path;
+        var filename = generateMd5(image.path!);
+        var imageSrc = fileFromPath(dir, filename, image.ext!);
 
-      list.add(_image(context, imagePath, imageSrc));
+        list.add(_image(context, imagePath, imageSrc, image.id!, image.link!));
+      }
+      else {
+        list.add(_emptyStateImage());
+      }
     }
   }
 
   return list;
 }
 
-Widget _image(BuildContext context, url, file)  {
-  return Image(image:NetworkToFileImage(
-      url: apiDomain + url,
-      file: file,
-      debug: true),
-    fit: BoxFit.fill,
-    filterQuality: FilterQuality.high,
+Widget _image(BuildContext context, url, file, int id, String link)  {
+  return VideoCard(
+      image: Image(image:NetworkToFileImage(
+          url: apiDomain + url,
+          file: file,
+          debug: true),
+        fit: BoxFit.fill,
+        filterQuality: FilterQuality.high,
+      ),
+      link: link,
+      id: id,
+      autofocus: false,
+      onMove: (p0) {
+
+      },
+      onMoveEnd: () {
+
+      }
   );
 }
 
@@ -251,3 +276,5 @@ File fileFromPath(String dir, String filename, String ext) {
 String generateMd5(String input) {
   return md5.convert(utf8.encode(input)).toString();
 }
+
+Widget _emptyStateImage() => Container(color: Colors.grey);

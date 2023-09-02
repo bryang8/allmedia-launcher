@@ -51,7 +51,7 @@ class AppsHomeGrid extends StatelessWidget {
                   shrinkWrap: true,
                   primary: false,
                   gridDelegate: _buildSliverGridDelegate(),
-                  padding: EdgeInsets.all(0),
+                  padding: EdgeInsets.only(bottom: 16),
                   childrenDelegate: SliverChildBuilderDelegate(
                     (context, index) => EnsureVisible(
                       key: Key("${category.id}-${applications[index].packageName}"),

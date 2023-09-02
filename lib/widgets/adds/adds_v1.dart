@@ -17,10 +17,9 @@ class AddsState extends State<AddsV1Widget> {
 
   @override
   Widget build(BuildContext context) {
-    bool showImages = _images.isNotEmpty;
-
+    double containerHeight = (MediaQuery.of(context).size.height * 0.6) - 16;
     return Container(
-      height: MediaQuery.of(context).size.height * 0.50,
+      height: containerHeight,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -31,13 +30,13 @@ class AddsState extends State<AddsV1Widget> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    child: showImages ? _images[0] : _emptyStateImage(context),
-                    height: MediaQuery.of(context).size.height * 0.25,
+                    child: _images[0],
+                    height: containerHeight / 2,
                   ),
                   Container(
-                    child: showImages ? _images[2] : _emptyStateImage(context),
+                    child: _images[2],
                     padding: EdgeInsets.only(top: 4),
-                    height: MediaQuery.of(context).size.height * 0.25,
+                    height: containerHeight / 2,
                   )
                 ] ,
               ),
@@ -45,7 +44,7 @@ class AddsState extends State<AddsV1Widget> {
             Container(
               width: (MediaQuery.of(context).size.width * 0.7) - 32,
               padding: EdgeInsets.fromLTRB(4,0,0,0),
-              child: showImages ? _images[1] : _emptyStateImage(context),
+              child:_images[1],
             )
 
           ]
@@ -57,7 +56,5 @@ class AddsState extends State<AddsV1Widget> {
   initState() {
 
   }
-
-  Widget _emptyStateImage(BuildContext context) => Container(color: Colors.grey);
 }
 

@@ -16,9 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import 'dart:io';
-
-import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/providers/ticker_model.dart';
 import 'package:flauncher/widgets/color_helpers.dart';
@@ -26,7 +23,6 @@ import 'package:flauncher/widgets/focus_keyboard_listener.dart';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -64,7 +60,6 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
   _VideoCard(this.image, this.id, this.link);
 
   bool _moving = false;
-  MemoryImage? _imageProvider;
   late final AnimationController _animation = AnimationController(
     vsync: Provider.of<TickerModel>(context, listen: false).tickerProvider ?? this,
     duration: Duration(
@@ -99,71 +94,79 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) => FocusKeyboardListener(
-    onPressed: (key) => _onPressed(context, key),
-    builder: (context) => FocusTraversalOrder(
-      order: NumericFocusOrder(id!.toDouble()),
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        transformAlignment: Alignment.center,
-        transform: _scaleTransform(context),
-        child: Material(
-          borderRadius: BorderRadius.circular(8),
-          clipBehavior: Clip.antiAlias,
-          elevation: Focus.of(context).hasFocus ? 16 : 0,
-          shadowColor: Colors.black,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              InkWell(
-                autofocus: widget.autofocus,
-                focusColor: Colors.transparent,
-                onTap: () => _onPressed(context, null),
-                child: image,
-              ),
-              IgnorePointer(
-                child: AnimatedOpacity(
-                  duration: Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  opacity: Focus.of(context).hasFocus ? 0 : 0.10,
-                  child: Container(color: Colors.black),
+  Widget build(BuildContext context) {
+    if(link == null || link.isEmpty) {
+      //_animation.dispose();
+      return simpleImageRounded(context);
+    }
+
+    return FocusKeyboardListener(
+      onPressed: (key) => _onPressed(context, key),
+      builder: (context) =>
+          FocusTraversalOrder(
+            order: NumericFocusOrder(id!.toDouble()),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              transformAlignment: Alignment.center,
+              transform: _scaleTransform(context),
+              child: Material(
+                borderRadius: BorderRadius.circular(8),
+                clipBehavior: Clip.antiAlias,
+                elevation: Focus.of(context).hasFocus ? 16 : 0,
+                shadowColor: Colors.black,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    InkWell(
+                      autofocus: widget.autofocus,
+                      focusColor: Colors.transparent,
+                      onTap: () => _onPressed(context, null),
+                      child: image,
+                    ),
+                    IgnorePointer(
+                      child: AnimatedOpacity(
+                        duration: Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        opacity: Focus.of(context).hasFocus ? 0 : 0.10,
+                        child: Container(color: Colors.black),
+                      ),
+                    ),
+                    Selector<SettingsService, bool>(
+                      selector: (_, settingsService) => settingsService.appHighlightAnimationEnabled,
+                      builder: (context, appHighlightAnimationEnabled, __) {
+                        if (appHighlightAnimationEnabled) {
+                          _animation.forward();
+                          return AnimatedBuilder(
+                            animation: _animation,
+                            builder: (context, child) => IgnorePointer(
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
+                                decoration: BoxDecoration(
+                                  border: Focus.of(context).hasFocus
+                                      ? Border.all(
+                                      color: _lastBorderColor =
+                                          computeBorderColor(_animation.value, _lastBorderColor),
+                                      width: 3)
+                                      : null,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        _animation.stop();
+                        return SizedBox();
+                      },
+                    ),
+                  ],
                 ),
               ),
-              Selector<SettingsService, bool>(
-                selector: (_, settingsService) => settingsService.appHighlightAnimationEnabled,
-                builder: (context, appHighlightAnimationEnabled, __) {
-                  if (appHighlightAnimationEnabled) {
-                    _animation.forward();
-                    return AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) => IgnorePointer(
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          decoration: BoxDecoration(
-                            border: Focus.of(context).hasFocus
-                                ? Border.all(
-                                color: _lastBorderColor =
-                                    computeBorderColor(_animation.value, _lastBorderColor),
-                                width: 3)
-                                : null,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  _animation.stop();
-                  return SizedBox();
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ),
-  );
+    );
+  }
 
   Matrix4 _scaleTransform(BuildContext context) {
     final scale = _moving
@@ -188,6 +191,21 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
     if (!await launchUrl(uri)) {
       throw Exception('Could not launch $uri');
     }
+  }
+
+  Widget simpleImageRounded(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(8),
+      clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      shadowColor: Colors.black,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+            image,
+        ],
+      ),
+    );
   }
 
 }
