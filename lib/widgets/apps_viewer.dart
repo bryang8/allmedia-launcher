@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -44,18 +45,29 @@ class AppsViewerState extends State<AppsViewer> {
   ConfigsModel config = ConfigsModel(launcher: 0);
   ViewerStates selectedHome = ViewerStates.AllApps;
   ViewerStates state = ViewerStates.AllApps;
-  bool fetch = true;
   List<Widget> _images = List.empty();
-  List<String> _links = List.empty();
-
-  bool starting = false;
 
   AppsViewerState(this.appMenu, this.macAddress);
 
   @override
-  Widget build(BuildContext context) {
-    if(fetch) startFetchingImages(context);
+  void initState() {
+    startFetchingImages(context);
 
+    var timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      startFetchingImages(context);
+    });
+
+    super.initState();
+  }
+
+
+  @override
+  void dispose() {
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
     var appsService = context.read<AppsService>();
     var categoriesWithApps = appsService.categoriesWithApps;
 
@@ -85,7 +97,6 @@ class AppsViewerState extends State<AppsViewer> {
         onWillPop: () async {
           setState(() {
             state = selectedHome;
-            fetch = false;
           });
           return false;
         },
@@ -93,29 +104,6 @@ class AppsViewerState extends State<AppsViewer> {
       );
     }
   }
-
-  Widget _categories(List<CategoryWithApps> categoriesWithApps) => Column(
-    children: categoriesWithApps.map((categoryWithApps) {
-      switch (categoryWithApps.category.type) {
-        case CategoryType.row:
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: CategoryRow(
-                key: Key(categoryWithApps.category.id.toString()),
-                category: categoryWithApps.category,
-                applications: categoryWithApps.applications),
-          );
-        case CategoryType.grid:
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 0),
-            child: AppsGrid(
-                key: Key(categoryWithApps.category.id.toString()),
-                category: categoryWithApps.category,
-                applications: categoryWithApps.applications),
-          );
-      }
-    }).toList(),
-  );
 
   List<Widget> Home1Widgets(homeCategory, homeApps, _images) {
     var appsList = homeApps
@@ -135,7 +123,6 @@ class AppsViewerState extends State<AppsViewer> {
             openAllApps: () {
               setState(() {
                 state = ViewerStates.AllApps;
-                fetch = true;
               });
             }),
         )
@@ -160,7 +147,6 @@ class AppsViewerState extends State<AppsViewer> {
             openAllApps: () {
               setState(() {
                 state = ViewerStates.AllApps;
-                fetch = true;
               });
             }),
         )
@@ -168,38 +154,34 @@ class AppsViewerState extends State<AppsViewer> {
   }
 
   void startFetchingImages(BuildContext context) {
-    //timer = Timer.periodic(Duration(seconds: 60), (Timer t) {
     fetchConfig(macAddress).then((configResponse) {
       if (configResponse != null) {
         getApplicationDocumentsDirectory().then((dir) {
-          if (configResponse.launcher == 1) {
-            selectedHome = ViewerStates.Home1;
-            setState(() {
-              config = configResponse;
-              selectedHome = selectedHome;
-              state = (this.config.launcher != 1)
-                  ? selectedHome : state;
-              fetch = false;
-              _images = convertConfigImagesToWidgets(
-                  context, configResponse.images, dir.path, 3);
-            });
+          var newHome = launcherIdToHome(configResponse.launcher);
+
+          var homeImages = convertConfigImagesToWidgets(
+              context, configResponse.images, dir.path, imagesLenFromHomeType(newHome));
+
+          if(state == selectedHome && selectedHome != newHome){
+              setState(() {
+                config = configResponse;
+                selectedHome = newHome;
+                state = newHome;
+                _images = homeImages;
+              });
           }
           else {
-            selectedHome = ViewerStates.Home2;
             setState(() {
               config = configResponse;
-              selectedHome = selectedHome;
-              state = (this.config.launcher != 2) ? selectedHome : state;
-              fetch = false;
-              _images = convertConfigImagesToWidgets(
-                  context, configResponse.images, dir.path, 5);
-              _links = configResponse.images!.map((i) => i.link!).toList();
+              selectedHome = newHome;
+              state = state;
+              _images = homeImages;
             });
           }
+
         });
       }
     });
-    //});
   }
 
   Future<ConfigsModel?> fetchConfig(String macAddress) async {
@@ -207,13 +189,10 @@ class AppsViewerState extends State<AppsViewer> {
     final response = await http.get(uri);
 
     print(response.statusCode);
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 404) {
       var model = ConfigsModel.fromJson(jsonDecode(response.body));
 
       print(model.launcher);
-      model.images?.forEach((list) {
-        print(list.id.toString() + ' : ' + list.path!);
-      });
 
       return model;
     } else {
@@ -221,6 +200,51 @@ class AppsViewerState extends State<AppsViewer> {
     }
   }
 }
+
+int imagesLenFromHomeType(ViewerStates homeId) {
+  if(homeId == ViewerStates.Home1) {
+    return 3;
+  }
+  if(homeId == ViewerStates.Home2) {
+    return 5;
+  }
+  return 0;
+}
+
+launcherIdToHome(int? launcherId) {
+  if(launcherId == null) {
+    return ViewerStates.AllApps;
+  }
+  else if(launcherId! == 1){
+    return ViewerStates.Home1;
+  }
+  else if(launcherId! == 2) {
+    return ViewerStates.Home2;
+  }
+}
+
+Widget _categories(List<CategoryWithApps> categoriesWithApps) => Column(
+  children: categoriesWithApps.map((categoryWithApps) {
+    switch (categoryWithApps.category.type) {
+      case CategoryType.row:
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: CategoryRow(
+              key: Key(categoryWithApps.category.id.toString()),
+              category: categoryWithApps.category,
+              applications: categoryWithApps.applications),
+        );
+      case CategoryType.grid:
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 0),
+          child: AppsGrid(
+              key: Key(categoryWithApps.category.id.toString()),
+              category: categoryWithApps.category,
+              applications: categoryWithApps.applications),
+        );
+    }
+  }).toList(),
+);
 
 List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, dir, int minLen) {
   var list = List<Widget>.empty(growable: true);
@@ -237,13 +261,14 @@ List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, d
         var imageSrc = fileFromPath(dir, filename, image.ext!);
 
         list.add(_image(context, imagePath, imageSrc, image.id!, image.link!));
+        print(image.id.toString() + ' : ' + image.path!);
       }
       else {
         list.add(_emptyStateImage());
+        print(i.toString() + ' : ');
       }
     }
   }
-
   return list;
 }
 
