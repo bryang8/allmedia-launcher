@@ -1,19 +1,8 @@
 import 'package:flutter/material.dart';
 
-class AddsV1Widget extends StatefulWidget  {
+class AdsV1Widget extends StatelessWidget  {
   final List<Widget> _images;
-  const AddsV1Widget(this._images, {Key? key}) : super(key: key);
-
-  @override
-  State<AddsV1Widget> createState() {
-    return AddsState(_images);
-  }
-}
-
-class AddsState extends State<AddsV1Widget> {
-  final List<Widget> _images;
-
-  AddsState(this._images);
+  const AdsV1Widget(this._images, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +40,4 @@ class AddsState extends State<AddsV1Widget> {
       ),
     );
   }
-
-  @override
-  initState() {
-
-  }
 }
-

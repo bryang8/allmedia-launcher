@@ -100,102 +100,114 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) => FocusKeyboardListener(
-        onPressed: (key) => _onPressed(context, key),
-        onLongPress: (key) => _onLongPress(context, key),
-        builder: (context) => AspectRatio(
-          aspectRatio: 16 / 9,
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            transformAlignment: Alignment.center,
-            transform: _scaleTransform(context),
-            child: Material(
-              borderRadius: BorderRadius.circular(8),
-              clipBehavior: Clip.antiAlias,
-              elevation: Focus.of(context).hasFocus ? 16 : 0,
-              shadowColor: Colors.black,
-              color: Color.fromRGBO(16,16,16,1),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  InkWell(
-                    autofocus: widget.autofocus,
-                    focusColor: Colors.transparent,
-                    onTap: () => _onPressed(context, null),
-                    onLongPress: () => _onLongPress(context, null),
-                    child: widget.application.banner != null
-                        ? Ink.image(image: _cachedMemoryImage(widget.application.banner!), fit: BoxFit.cover)
-                        : Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Ink.image(
-                                    image: _cachedMemoryImage(widget.application.icon!),
-                                    height: double.infinity,
-                                  ),
+  Widget build(BuildContext context)  {
+    var textStyle = Theme.of(context).textTheme.bodySmall!
+        .copyWith(color: Colors.white, fontWeight: FontWeight.w500);
+
+    return FocusKeyboardListener(
+      onPressed: (key) => _onPressed(context, key),
+      onLongPress: (key) => _onLongPress(context, key),
+      builder: (context) => AspectRatio(
+        aspectRatio: 16 / 9,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          transformAlignment: Alignment.center,
+          transform: _scaleTransform(context),
+          child: Material(
+            borderRadius: BorderRadius.circular(8),
+            clipBehavior: Clip.antiAlias,
+            elevation: Focus.of(context).hasFocus ? 16 : 0,
+            shadowColor: Colors.black,
+            color: Color.fromRGBO(16, 16, 16, 1),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                InkWell(
+                  autofocus: widget.autofocus,
+                  focusColor: Colors.transparent,
+                  onTap: () => _onPressed(context, null),
+                  onLongPress: () => _onLongPress(context, null),
+                  child: widget.application.banner != null
+                      ? Ink.image(
+                          image: _cachedMemoryImage(
+                              widget.application.banner!),
+                          fit: BoxFit.cover)
+                      : Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Ink.image(
+                                  image: _cachedMemoryImage(
+                                      widget.application.icon!),
+                                  height: double.infinity,
                                 ),
-                                Flexible(
-                                  flex: 3,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 8),
-                                    child: Text(
-                                      widget.application.name,
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 3,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                  if (_moving) ..._arrows(),
-                  IgnorePointer(
-                    child: AnimatedOpacity(
-                      duration: Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      opacity: Focus.of(context).hasFocus ? 0 : 0.10,
-                      child: Container(color: Colors.black),
-                    ),
-                  ),
-                  Selector<SettingsService, bool>(
-                    selector: (_, settingsService) => settingsService.appHighlightAnimationEnabled,
-                    builder: (context, appHighlightAnimationEnabled, __) {
-                      if (appHighlightAnimationEnabled) {
-                        _animation.forward();
-                        return AnimatedBuilder(
-                          animation: _animation,
-                          builder: (context, child) => IgnorePointer(
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 200),
-                              curve: Curves.easeInOut,
-                              decoration: BoxDecoration(
-                                border: Focus.of(context).hasFocus
-                                    ? Border.all(
-                                        color: _lastBorderColor =
-                                            computeBorderColor(_animation.value, _lastBorderColor),
-                                        width: 3)
-                                    : null,
-                                borderRadius: BorderRadius.circular(8),
                               ),
+                              Flexible(
+                                flex: 3,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    widget.application.name,
+                                    style: textStyle,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+                if (_moving) ..._arrows(),
+                IgnorePointer(
+                  child: AnimatedOpacity(
+                    duration: Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    opacity: Focus.of(context).hasFocus ? 0 : 0.10,
+                    child: Container(color: Colors.black),
+                  ),
+                ),
+                Selector<SettingsService, bool>(
+                  selector: (_, settingsService) =>
+                      settingsService.appHighlightAnimationEnabled,
+                  builder: (context, appHighlightAnimationEnabled, __) {
+                    if (appHighlightAnimationEnabled) {
+                      _animation.forward();
+                      return AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) => IgnorePointer(
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            decoration: BoxDecoration(
+                              border: Focus.of(context).hasFocus
+                                  ? Border.all(
+                                      color: _lastBorderColor =
+                                          computeBorderColor(
+                                              _animation.value,
+                                              _lastBorderColor),
+                                      width: 3)
+                                  : null,
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                        );
-                      }
-                      _animation.stop();
-                      return SizedBox();
-                    },
-                  ),
-                ],
-              ),
+                        ),
+                      );
+                    }
+                    _animation.stop();
+                    return SizedBox();
+                  },
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   Matrix4 _scaleTransform(BuildContext context) {
     final scale = _moving

@@ -5,7 +5,8 @@ class ConfigsModel {
   ConfigsModel({this.launcher, this.images});
 
   ConfigsModel.fromJson(Map<String, dynamic> json) {
-    launcher = json['launcher_id'];
+    launcher = json['launcher_id'] ?? json['launcher'];
+
     if (json['images'] != null) {
       images = <ConfigsImage>[];
       json['images'].forEach((v) {

@@ -57,7 +57,7 @@ class Home extends StatelessWidget {
 
                     var appMenu = App(
                         packageName: "menu",
-                        name: "Todas las apps",
+                        name: "Aplicaciones",
                         version: "0",
                         hidden: false,
                         sideloaded: false,

@@ -100,7 +100,8 @@ class _AppCardState extends State<AppCard2> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.black, fontWeight: FontWeight.w500);
+    var textStyle = Theme.of(context).textTheme.bodySmall!
+        .copyWith(color: Colors.white, fontWeight: FontWeight.w500);
 
     return FocusKeyboardListener(
       onPressed: (key) => _onPressed(context, key),
@@ -152,7 +153,7 @@ class _AppCardState extends State<AppCard2> with SingleTickerProviderStateMixin 
                                   widget.application.name,
                                   style: textStyle,
                                   overflow: TextOverflow.ellipsis,
-                                  maxLines: 3,
+                                  maxLines: 3
                                 ),
                               ),
                             ),

@@ -6,8 +6,8 @@ import 'dart:io';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/apps_service.dart';
-import 'package:flauncher/widgets/adds/adds_v1.dart';
-import 'package:flauncher/widgets/adds/adds_v2.dart';
+import 'package:flauncher/widgets/adds/ads_v1.dart';
+import 'package:flauncher/widgets/adds/ads_v2.dart';
 import 'package:flauncher/widgets/elements/video_card.dart';
 import 'package:flauncher/widgets/grids/apps_grid.dart';
 import 'package:flauncher/widgets/category_row.dart';
@@ -111,7 +111,7 @@ class AppsViewerState extends State<AppsViewer> {
 
     return
       [
-        AddsV1Widget(_images),
+        AdsV1Widget(_images),
         //Home Apps
         Container(
           padding: EdgeInsets.only(top: 16),
@@ -186,6 +186,7 @@ class AppsViewerState extends State<AppsViewer> {
 
   Future<ConfigsModel?> fetchConfig(String macAddress) async {
     final uri = Uri.parse(apiDomain+'api/device/device/'+macAddress);
+    print(uri.toString());
     final response = await http.get(uri);
 
     print(response.statusCode);
@@ -289,7 +290,8 @@ Widget _image(BuildContext context, url, file, int id, String link)  {
       },
       onMoveEnd: () {
 
-      }
+      },
+    key: Key("vc-" + id.toString() + generateMd5(url + link ?? '')),
   );
 }
 
