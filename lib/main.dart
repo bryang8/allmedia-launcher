@@ -87,7 +87,7 @@ Future<void> main() async {
         remoteConfig,
         allAppsBanner,
         allAppsIcon,
-        macAddress
+        macAddress,
       ),
     );
   }, firebaseCrashlytics.recordError);

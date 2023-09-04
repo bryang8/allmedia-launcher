@@ -101,6 +101,7 @@ class HomeApp extends StatelessWidget {
         tickerProvider
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         shortcuts: {
           ...WidgetsApp.defaultShortcuts,
           SingleActivator(LogicalKeyboardKey.select): ActivateIntent(),

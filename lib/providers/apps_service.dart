@@ -110,6 +110,7 @@ class AppsService extends ChangeNotifier {
       await addCategory(
       "Non-TV Applications",
       shouldNotifyListeners: false,
+        order: 1
     );
     final nonTvAppsCategory =
       _categoriesWithApps.map((e) => e.category).firstWhere((element) => element.name == "Non-TV Applications");
@@ -206,13 +207,13 @@ class AppsService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addCategory(String categoryName, {bool shouldNotifyListeners = true}) async {
+  Future<void> addCategory(String categoryName, {bool shouldNotifyListeners = true, order: 0}) async {
     final orderedCategories = <CategoriesCompanion>[];
     for (int i = 0; i < _categoriesWithApps.length; ++i) {
       final category = _categoriesWithApps[i].category;
       orderedCategories.add(CategoriesCompanion(id: Value(category.id), order: Value(i + 1)));
     }
-    await _database.insertCategory(CategoriesCompanion.insert(name: categoryName, order: 0));
+    await _database.insertCategory(CategoriesCompanion.insert(name: categoryName, order: order));
     await _database.updateCategories(orderedCategories);
     _categoriesWithApps = await _database.listCategoriesWithVisibleApps();
     if (shouldNotifyListeners) {
