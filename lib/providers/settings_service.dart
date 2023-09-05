@@ -31,6 +31,7 @@ const _appHighlightAnimationEnabledKey = "app_highlight_animation_enabled";
 const _gradientUuidKey = "gradient_uuid";
 const _unsplashEnabledKey = "unsplash_enabled";
 const _unsplashAuthorKey = "unsplash_author";
+const _launcherConfigKey = "launcher_config";
 
 class SettingsService extends ChangeNotifier {
   final SharedPreferences _sharedPreferences;
@@ -52,6 +53,8 @@ class SettingsService extends ChangeNotifier {
   bool get unsplashEnabled => _firebaseRemoteConfig.getBool(_unsplashEnabledKey);
 
   String? get unsplashAuthor => _sharedPreferences.getString(_unsplashAuthorKey);
+
+  String? get launcherConfig => _sharedPreferences.getString(_launcherConfigKey);
 
   SettingsService(
     this._sharedPreferences,
@@ -116,5 +119,10 @@ class SettingsService extends ChangeNotifier {
     if (updated) {
       notifyListeners();
     }
+  }
+
+  Future<void> setLauncherConfig(String value) async {
+    await _sharedPreferences.setString(_launcherConfigKey, value);
+    notifyListeners();
   }
 }

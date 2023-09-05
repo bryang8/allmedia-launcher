@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/models/config_model.dart';
 import 'package:flauncher/providers/apps_service.dart';
+import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/widgets/adds/ads_v1.dart';
 import 'package:flauncher/widgets/adds/ads_v2.dart';
 import 'package:flauncher/widgets/elements/video_card.dart';
@@ -13,7 +14,6 @@ import 'package:flauncher/widgets/grids/apps_grid.dart';
 import 'package:flauncher/widgets/category_row.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid.dart';
 import 'package:flauncher/widgets/grids/apps_home_grid_2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,7 +23,7 @@ import 'package:path/path.dart' as p;
 import 'package:crypto/crypto.dart';
 
 enum ViewerStates {
-  Home1, Home2, AllApps
+  home1, home2, allApps
 }
 
 final apiDomain = "http://backend.am4.tv/";
@@ -43,14 +43,23 @@ class AppsViewerState extends State<AppsViewer> {
   final String macAddress;
 
   ConfigsModel config = ConfigsModel(launcher: 0);
-  ViewerStates selectedHome = ViewerStates.AllApps;
-  ViewerStates state = ViewerStates.AllApps;
+  ViewerStates selectedHome = ViewerStates.allApps;
+  ViewerStates state = ViewerStates.allApps;
   List<Widget> _images = List.empty();
 
   AppsViewerState(this.appMenu, this.macAddress);
 
   @override
   void initState() {
+    var initialConfig = context.read<SettingsService>().launcherConfig;
+    try {
+      if(initialConfig != null) {
+        onConfigFetched(ConfigsModel.fromJson(jsonDecode(initialConfig)));
+      }
+    } catch (ex) {
+      //ignored
+    }
+
     startFetchingImages(context);
 
     var timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
@@ -58,12 +67,6 @@ class AppsViewerState extends State<AppsViewer> {
     });
 
     super.initState();
-  }
-
-
-  @override
-  void dispose() {
-
   }
 
   @override
@@ -76,7 +79,7 @@ class AppsViewerState extends State<AppsViewer> {
 
     homeApps.insert(0, appMenu);
 
-    if(state != ViewerStates.AllApps) {
+    if(state != ViewerStates.allApps) {
       return WillPopScope (
         onWillPop: () async {
           return false;
@@ -85,9 +88,9 @@ class AppsViewerState extends State<AppsViewer> {
           child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              children: state == ViewerStates.Home1
-                ? Home1Widgets(homeCategory, homeApps, _images)
-                : Home2Widgets(homeCategory, homeApps, _images)
+              children: state == ViewerStates.home1
+                ? home1Widgets(homeCategory, homeApps, _images)
+                : home2Widgets(homeCategory, homeApps, _images)
           ),
         )
       );
@@ -105,7 +108,7 @@ class AppsViewerState extends State<AppsViewer> {
     }
   }
 
-  List<Widget> Home1Widgets(homeCategory, homeApps, _images) {
+  List<Widget> home1Widgets(homeCategory, homeApps, _images) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 10 ? 10 : homeApps.length);
 
@@ -122,14 +125,14 @@ class AppsViewerState extends State<AppsViewer> {
             applications: appsList,
             openAllApps: () {
               setState(() {
-                state = ViewerStates.AllApps;
+                state = ViewerStates.allApps;
               });
             }),
         )
       ];
   }
 
-  List<Widget> Home2Widgets(homeCategory, homeApps, _images) {
+  List<Widget> home2Widgets(homeCategory, homeApps, _images) {
     var appsList = homeApps
         .sublist(0, homeApps.length > 7 ? 7 : homeApps.length);
 
@@ -146,7 +149,7 @@ class AppsViewerState extends State<AppsViewer> {
             applications: appsList,
             openAllApps: () {
               setState(() {
-                state = ViewerStates.AllApps;
+                state = ViewerStates.allApps;
               });
             }),
         )
@@ -156,31 +159,35 @@ class AppsViewerState extends State<AppsViewer> {
   void startFetchingImages(BuildContext context) {
     fetchConfig(macAddress).then((configResponse) {
       if (configResponse != null) {
-        getApplicationDocumentsDirectory().then((dir) {
-          var newHome = launcherIdToHome(configResponse.launcher);
+        onConfigFetched(configResponse);
+      }
+    });
+  }
 
-          var homeImages = convertConfigImagesToWidgets(
-              context, configResponse.images, dir.path, imagesLenFromHomeType(newHome));
+  void onConfigFetched(ConfigsModel configResponse) {
+    getApplicationDocumentsDirectory().then((dir) {
+      var newHome = launcherIdToHome(configResponse.launcher);
 
-          if(state == selectedHome && selectedHome != newHome){
-              setState(() {
-                config = configResponse;
-                selectedHome = newHome;
-                state = newHome;
-                _images = homeImages;
-              });
-          }
-          else {
-            setState(() {
-              config = configResponse;
-              selectedHome = newHome;
-              state = state;
-              _images = homeImages;
-            });
-          }
+      var homeImages = convertConfigImagesToWidgets(
+          context, configResponse.images, dir.path, imagesLenFromHomeType(newHome));
 
+      if(state == selectedHome && selectedHome != newHome){
+        setState(() {
+          config = configResponse;
+          selectedHome = newHome;
+          state = newHome;
+          _images = homeImages;
         });
       }
+      else {
+        setState(() {
+          config = configResponse;
+          selectedHome = newHome;
+          state = state;
+          _images = homeImages;
+        });
+      }
+
     });
   }
 
@@ -194,7 +201,7 @@ class AppsViewerState extends State<AppsViewer> {
       var model = ConfigsModel.fromJson(jsonDecode(response.body));
 
       print(model.launcher);
-
+      context.read<SettingsService>().setLauncherConfig(response.body);
       return model;
     } else {
       return null;
@@ -203,10 +210,10 @@ class AppsViewerState extends State<AppsViewer> {
 }
 
 int imagesLenFromHomeType(ViewerStates homeId) {
-  if(homeId == ViewerStates.Home1) {
+  if(homeId == ViewerStates.home1) {
     return 3;
   }
-  if(homeId == ViewerStates.Home2) {
+  if(homeId == ViewerStates.home2) {
     return 5;
   }
   return 0;
@@ -214,13 +221,13 @@ int imagesLenFromHomeType(ViewerStates homeId) {
 
 launcherIdToHome(int? launcherId) {
   if(launcherId == null) {
-    return ViewerStates.AllApps;
+    return ViewerStates.allApps;
   }
   else if(launcherId! == 1){
-    return ViewerStates.Home1;
+    return ViewerStates.home1;
   }
   else if(launcherId! == 2) {
-    return ViewerStates.Home2;
+    return ViewerStates.home2;
   }
 }
 

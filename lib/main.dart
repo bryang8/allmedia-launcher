@@ -35,8 +35,6 @@ import 'package:mac_address/mac_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
-import 'dart:developer';
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Paint.enableDithering = true;
@@ -48,8 +46,11 @@ Future<void> main() async {
       .buffer.asUint8List();
   final Uint8List allAppsIcon = (await rootBundle.load('assets/allapps_icon.png'))
       .buffer.asUint8List();
+  final Uint8List theBoxIcon = (await rootBundle.load('assets/thebox_icon.png'))
+      .buffer.asUint8List();
+  final Uint8List youBoxIcon = (await rootBundle.load('assets/youbox_icon.png'))
+      .buffer.asUint8List();
   final macAddress = await GetMac.macAddress;
-  print(macAddress);
 
   FlutterError.onError = firebaseCrashlytics.recordFlutterError;
   Isolate.current.addErrorListener(RawReceivePort((List<dynamic> pair) async => await firebaseCrashlytics.recordError(
@@ -88,6 +89,8 @@ Future<void> main() async {
         allAppsBanner,
         allAppsIcon,
         macAddress,
+        theBoxIcon,
+        youBoxIcon
       ),
     );
   }, firebaseCrashlytics.recordError);

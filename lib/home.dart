@@ -24,6 +24,7 @@ import 'package:flauncher/database.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/wallpaper_service.dart';
 import 'package:flauncher/widgets/apps_viewer.dart';
+import 'package:flauncher/widgets/launcher_logo.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flauncher/widgets/time_widget.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +34,16 @@ class Home extends StatelessWidget {
   final Uint8List _allAppsBanner;
   final Uint8List _allAppsIcon;
   final String _macAddress;
+  final Uint8List _theBoxIcon;
+  final Uint8List _youBoxIcon;
 
-  Home(this._allAppsBanner, this._allAppsIcon, this._macAddress);
+  Home(
+    this._allAppsBanner,
+    this._allAppsIcon,
+    this._macAddress,
+    this._theBoxIcon,
+    this._youBoxIcon
+  );
 
   @override
   Widget build(BuildContext context) => FocusTraversalGroup(
@@ -76,6 +85,7 @@ class Home extends StatelessWidget {
 
   AppBar _appBar(BuildContext context) => AppBar(
     toolbarHeight: 46,
+    title: LauncherLogoWidget(_theBoxIcon, _youBoxIcon),
     actions: [
         Stack(
           alignment: Alignment.center,
