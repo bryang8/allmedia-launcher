@@ -45,7 +45,7 @@ import 'package:mockito/annotations.dart';
 void main() {}
 
 App fakeApp({
-  String packageName = "me.efesser.flauncher",
+  String packageName = "com.allmedia.launcher",
   String name = "FLauncher",
   String version = "1.0.0",
   Uint8List? banner,

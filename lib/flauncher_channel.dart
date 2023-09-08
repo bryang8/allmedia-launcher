@@ -21,8 +21,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class FLauncherChannel {
-  static const _methodChannel = MethodChannel('me.efesser.flauncher/method');
-  static const _eventChannel = EventChannel('me.efesser.flauncher/event');
+  static const _methodChannel = MethodChannel('com.allmedia.launcher/method');
+  static const _eventChannel = EventChannel('com.allmedia.launcher/event');
 
   Future<List<dynamic>> getApplications() async => (await _methodChannel.invokeListMethod('getApplications'))!;
 

@@ -264,7 +264,7 @@ class _AppCardState extends State<AppCard2> with SingleTickerProviderStateMixin 
         widget.onMoveEnd();
       }
       return KeyEventResult.handled;
-    } else if (_validationKeys.contains(key)) {
+    } else if (_validationKeys.contains(key)  || (key == null) ) {
       if(widget.application.packageName == 'menu'){
         widget.customAction();
       }

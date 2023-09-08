@@ -28,6 +28,7 @@ dependencies:
   network_to_file_image: ^4.0.1
   url_launcher: ^6.1.13
   mac_address: ^1.0.0
+  android_intent_plus: ^4.0.2
 
 dev_dependencies:
   flutter_test:

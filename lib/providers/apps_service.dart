@@ -99,7 +99,9 @@ class AppsService extends ChangeNotifier {
         shouldNotifyListeners: false,
       );
       for (final app in tvApplications) {
-        await addToCategory(app, tvAppsCategory, shouldNotifyListeners: false);
+        if(app.packageName != "com.allmedia.launcher") {
+          await addToCategory(app, tvAppsCategory, shouldNotifyListeners: false);
+        }
       }
     }
   });
@@ -133,6 +135,8 @@ class AppsService extends ChangeNotifier {
           .where((app) => !appsFromSystem.any((systemApp) => systemApp.packageName.value == app.packageName))
           .map((app) => app.packageName)
           .toList();
+
+      appsRemovedFromSystem.add("com.allmedia.launcher");
 
       final List<String> uninstalledApplications = [];
       await Future.forEach(appsRemovedFromSystem, (String packageName) async {

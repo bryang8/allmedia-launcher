@@ -248,7 +248,7 @@ class _MockPackageInfoPlatform with MockPlatformInterfaceMixin implements Packag
   @override
   Future<PackageInfoData> getAll() async => PackageInfoData(
         appName: "FLauncher",
-        packageName: "me.efesser.flauncher",
+        packageName: "com.allmedia.launcher",
         version: "1.0.0",
         buildNumber: "1",
         buildSignature: "",

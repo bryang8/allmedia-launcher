@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/providers/ticker_model.dart';
 import 'package:flauncher/widgets/color_helpers.dart';
@@ -178,19 +179,40 @@ class _VideoCard extends State<VideoCard> with SingleTickerProviderStateMixin {
   }
 
   KeyEventResult _onPressed(BuildContext context, LogicalKeyboardKey? key) {
-    if (_validationKeys.contains(key)) {
+    if (_validationKeys.contains(key)  || (key == null)) {
       var uri =  Uri.parse(link);
-      _launchUrl(uri);
+
+      if(uri.queryParameters.isNotEmpty && uri.queryParameters.containsKey("v")) {
+        _launchUrl(uri, uri.queryParameters["v"]);
+      }
+      else {
+        _launchUrl(uri, null);
+      }
 
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }
 
-  Future<void> _launchUrl(uri) async {
-    if (!await launchUrl(uri)) {
-      throw Exception('Could not launch $uri');
+  Future<void> _launchUrl(Uri uri, String? videoId) async {
+    try {
+      if(videoId != null && uri.origin.contains("youtube")) {
+        AndroidIntent intent = AndroidIntent(
+          action: 'action_view',
+          data: Uri.encodeFull("vnd.youtube://" + videoId),
+          //package: 'com.google.android.youtube.tv'
+        );
+        await intent.launch();
+      }
+      else {
+        if (!await launchUrl(uri)) {
+          throw Exception('Could not launch $uri');
+        }
+      }
+    } catch (ex) {
+      //ignored
     }
+
   }
 
   Widget simpleImageRounded(BuildContext context) {

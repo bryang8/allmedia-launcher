@@ -3,7 +3,7 @@ FLauncher is an open-source alternative launcher for Android TV, built with [Flu
 
 The project is still at an early development stage and may be unstable. It currently lacks testing on real devices and has only been tested on Chromecast with Google TV.
 
-<a href="https://play.google.com/store/apps/details?id=me.efesser.flauncher">
+<a href="https://play.google.com/store/apps/details?id=com.allmedia.launcher">
  <img alt="Get it on Google Play" width="200" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"/>
 </a>
 

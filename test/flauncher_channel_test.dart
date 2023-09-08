@@ -26,11 +26,11 @@ void main() {
   });
 
   test("getApplications", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "getApplications") {
         return [
-          {'packageName': 'me.efesser.flauncher'}
+          {'packageName': 'com.allmedia.launcher'}
         ];
       }
       fail("Unhandled method name");
@@ -40,12 +40,12 @@ void main() {
     final apps = await fLauncherChannel.getApplications();
 
     expect(apps, [
-      {'packageName': 'me.efesser.flauncher'}
+      {'packageName': 'com.allmedia.launcher'}
     ]);
   });
 
   test("launchApp", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     String? packageName;
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "launchApp") {
@@ -56,13 +56,13 @@ void main() {
     });
     final fLauncherChannel = FLauncherChannel();
 
-    await fLauncherChannel.launchApp("me.efesser.flauncher");
+    await fLauncherChannel.launchApp("com.allmedia.launcher");
 
-    expect(packageName, "me.efesser.flauncher");
+    expect(packageName, "com.allmedia.launcher");
   });
 
   test("openSettings", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     bool called = false;
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "openSettings") {
@@ -79,7 +79,7 @@ void main() {
   });
 
   test("openAppInfo", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     String? packageName;
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "openAppInfo") {
@@ -90,13 +90,13 @@ void main() {
     });
     final fLauncherChannel = FLauncherChannel();
 
-    await fLauncherChannel.openAppInfo("me.efesser.flauncher");
+    await fLauncherChannel.openAppInfo("com.allmedia.launcher");
 
-    expect(packageName, "me.efesser.flauncher");
+    expect(packageName, "com.allmedia.launcher");
   });
 
   test("uninstallApp", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     String? packageName;
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "uninstallApp") {
@@ -107,13 +107,13 @@ void main() {
     });
     final fLauncherChannel = FLauncherChannel();
 
-    await fLauncherChannel.uninstallApp("me.efesser.flauncher");
+    await fLauncherChannel.uninstallApp("com.allmedia.launcher");
 
-    expect(packageName, "me.efesser.flauncher");
+    expect(packageName, "com.allmedia.launcher");
   });
 
   test("isDefaultLauncher", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "isDefaultLauncher") {
         return true;
@@ -128,7 +128,7 @@ void main() {
   });
 
   test("checkForGetContentAvailability", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "checkForGetContentAvailability") {
         return true;
@@ -143,7 +143,7 @@ void main() {
   });
 
   test("startAmbientMode", () async {
-    final channel = MethodChannel('me.efesser.flauncher/method');
+    final channel = MethodChannel('com.allmedia.launcher/method');
     bool called = false;
     channel.setMockMethodCallHandler((call) async {
       if (call.method == "startAmbientMode") {

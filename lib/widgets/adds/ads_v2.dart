@@ -1,10 +1,8 @@
 
 import 'package:flutter/material.dart';
 
-final exampleImagePath = 'https://cdnb.artstation.com/p/assets/images/images/043/787/189/large/ravi-sanker-coke-land.jpg';
-final exampleImageFile = '/data/user/0/me.efesser.flauncher/app_flutter/108b09a40529f888b357777aa364f8a3.jpg';
-
 class AdsV2Widget extends StatelessWidget  {
+
   final List<Widget> _images;
 
   const AdsV2Widget(this._images, {Key? key}) : super(key: key);

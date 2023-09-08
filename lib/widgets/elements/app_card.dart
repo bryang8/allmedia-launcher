@@ -243,7 +243,8 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
       );
 
   KeyEventResult _onPressed(BuildContext context, LogicalKeyboardKey? key) {
-    if (_moving) {
+    if (
+    _moving) {
       WidgetsBinding.instance.addPostFrameCallback((_) => Scrollable.ensureVisible(context,
           alignment: 0.1, duration: Duration(milliseconds: 100), curve: Curves.easeInOut));
       if (key == LogicalKeyboardKey.arrowLeft) {
@@ -259,7 +260,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
         widget.onMoveEnd();
       }
       return KeyEventResult.handled;
-    } else if (_validationKeys.contains(key)) {
+    } else if (_validationKeys.contains(key) || (key == null)) {
       if(widget.application.packageName == 'menu'){
         widget.customAction();
       }
