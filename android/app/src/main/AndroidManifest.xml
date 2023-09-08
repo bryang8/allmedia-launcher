@@ -53,7 +53,7 @@
         android:label="AllMedia"
         android:exported="true">
         <activity
-            android:name=".MainActivity"
+            android:name="com.allmedia.launcher.MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"

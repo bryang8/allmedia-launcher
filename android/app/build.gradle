@@ -63,15 +63,19 @@ android {
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86_64", "x86"
+        }
     }
 
     signingConfigs {
         debug {}
         release {
-            storeFile file("upload-keystore.jks")
-            storePassword "${secretProperties['signing_keystore_password']}"
-            keyAlias "${secretProperties['signing_key_alias']}"
-            keyPassword "${secretProperties['signing_key_password']}"
+            storeFile file("../../../keystore.jks")
+            storePassword "Password!2345"
+            keyAlias "launcher"
+            keyPassword "Password!2345"
         }
     }
 
@@ -86,6 +90,8 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    namespace 'com.allmedia.launcher'
 }
 
 flutter {
