@@ -281,12 +281,14 @@ List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, d
 }
 
 Widget _image(BuildContext context, url, file, int id, String link)  {
+  var nImage = NetworkToFileImage(
+      url: apiDomain + url,
+      file: file,
+      debug: true);
+
   return VideoCard(
-      image: Image(image:NetworkToFileImage(
-          url: apiDomain + url,
-          file: file,
-          debug: true),
-        fit: BoxFit.fill,
+      image: Image(image:nImage,
+        fit: BoxFit.cover,
         filterQuality: FilterQuality.high,
       ),
       link: link,
