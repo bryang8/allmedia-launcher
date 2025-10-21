@@ -82,7 +82,7 @@ class SettingsPanelPage extends StatelessWidget {
                 onPressed: () => context.read<AppsService>().openSettings(),
               ),
               Divider(),
-              SwitchListTile(
+              /*SwitchListTile(
                 contentPadding: EdgeInsets.symmetric(horizontal: 8),
                 value: settingsService.use24HourTimeFormat,
                 onChanged: (value) => settingsService.setUse24HourTimeFormat(value),
@@ -112,14 +112,13 @@ class SettingsPanelPage extends StatelessWidget {
                 title: Text("Analytics Reporting"),
                 dense: true,
                 subtitle: Text("Share analytics data through Firebase Analytics."),
-              ),
-              Divider(),
+              ),*/
               TextButton(
                 child: Row(
                   children: [
                     Icon(Icons.info_outline),
                     Container(width: 8),
-                    Text("About FLauncher", style: Theme.of(context).textTheme.bodyMedium),
+                    Text("About this device", style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
                 onPressed: () => showDialog(
@@ -131,7 +130,7 @@ class SettingsPanelPage extends StatelessWidget {
                         : Container(),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),

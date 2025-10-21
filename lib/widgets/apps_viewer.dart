@@ -21,33 +21,50 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 
 enum ViewerStates {
   home1, home2, allApps
 }
 
-final apiDomain = "http://backend.am4.tv/";
+final apiDomain = "https://boxos.am4.tv/";
 
 class AppsViewer extends StatefulWidget {
   final App appMenu;
-  final String macAddress;
 
-  AppsViewer(this.appMenu, this.macAddress);
+  AppsViewer(this.appMenu);
 
   @override
-  State<AppsViewer> createState() => AppsViewerState(appMenu, macAddress);
+  State<AppsViewer> createState() => AppsViewerState(appMenu);
 }
 
 class AppsViewerState extends State<AppsViewer> {
   final App appMenu;
-  final String macAddress;
 
   ConfigsModel config = ConfigsModel(launcher: 0);
   ViewerStates selectedHome = ViewerStates.allApps;
   ViewerStates state = ViewerStates.allApps;
   List<Widget> _images = List.empty();
 
-  AppsViewerState(this.appMenu, this.macAddress);
+  AppsViewerState(this.appMenu);
+
+  Future<String> getAndroidId() async {
+    const platform = MethodChannel('com.allmedia.launcher/androidid');
+    try {
+      final androidId = await platform.invokeMethod<String>('getAndroidId');
+      if (androidId == null || androidId.isEmpty) return "";
+
+      final formattedAndroidId = androidId.replaceAllMapped(
+          RegExp(r'.{4}'),
+              (match) => '${match.group(0)}:'
+      );
+
+      return formattedAndroidId.endsWith(':') ? formattedAndroidId.substring(0, formattedAndroidId.length - 1) : formattedAndroidId;
+    } on PlatformException catch (e) {
+      print("Failed to get Android ID: '${e.message}'.");
+      return "";
+    }
+  }
 
   @override
   void initState() {
@@ -157,7 +174,7 @@ class AppsViewerState extends State<AppsViewer> {
   }
 
   void startFetchingImages(BuildContext context) {
-    fetchConfig(macAddress).then((configResponse) {
+    fetchConfig().then((configResponse) {
       if (configResponse != null) {
         onConfigFetched(configResponse);
       }
@@ -191,13 +208,15 @@ class AppsViewerState extends State<AppsViewer> {
     });
   }
 
-  Future<ConfigsModel?> fetchConfig(String macAddress) async {
-    final uri = Uri.parse(apiDomain+'api/device/device/'+macAddress);
+  Future<ConfigsModel?> fetchConfig() async {
+    final androidId = await getAndroidId();
+
+    final uri = Uri.parse(apiDomain + 'api/device/device/' + androidId);
     print(uri.toString());
     final response = await http.get(uri);
 
     print(response.statusCode);
-    if (response.statusCode == 200 || response.statusCode == 404) {
+    if (response.statusCode == 200) {
       var model = ConfigsModel.fromJson(jsonDecode(response.body));
 
       print(model.launcher);
@@ -262,7 +281,10 @@ List<Widget> convertConfigImagesToWidgets(context, List<ConfigsImage>? images, d
       list.add(_emptyStateImage());
     }
     else {
-      var image = images?.where((element) => element.id == i).firstOrNull;
+      var image = images.where((element) => element.id == i).isNotEmpty
+        ? images.firstWhere((element) => element.id == i)
+        : null;
+
       if(image != null){
         var imagePath = image.path;
         var filename = generateMd5(image.path!);

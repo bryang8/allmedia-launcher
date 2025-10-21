@@ -108,7 +108,7 @@ class FLauncherApp extends StatelessWidget {
             DirectionalFocusIntent:
                 SoundFeedbackDirectionalFocusAction(context),
           },
-          title: 'FLauncher',
+          title: 'AllMedia Launcher',
           theme: ThemeData(
             brightness: Brightness.dark,
             primarySwatch: _swatch,
@@ -134,7 +134,7 @@ class FLauncherApp extends StatelessWidget {
               cursorColor: Colors.white,
               selectionColor: _swatch[200],
               selectionHandleColor: _swatch[200],
-            ),
+            ), colorScheme: ColorScheme.fromSwatch(primarySwatch: _swatch).copyWith(background: _swatch[400]),
           ),
           home: Builder(
             builder: (context) => WillPopScope(

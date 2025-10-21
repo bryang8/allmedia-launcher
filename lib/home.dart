@@ -33,14 +33,12 @@ import 'package:provider/provider.dart';
 class Home extends StatelessWidget {
   final Uint8List _allAppsBanner;
   final Uint8List _allAppsIcon;
-  final String _macAddress;
   final Uint8List _theBoxIcon;
   final Uint8List _youBoxIcon;
 
   Home(
     this._allAppsBanner,
     this._allAppsIcon,
-    this._macAddress,
     this._theBoxIcon,
     this._youBoxIcon
   );
@@ -74,7 +72,7 @@ class Home extends StatelessWidget {
                         icon: _allAppsIcon
                     );
 
-                    return AppsViewer(appMenu, _macAddress);
+                    return AppsViewer(appMenu);
                   }
                 ),
               ),

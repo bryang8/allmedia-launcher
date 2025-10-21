@@ -50,7 +50,6 @@ Future<void> main() async {
       .buffer.asUint8List();
   final Uint8List youBoxIcon = (await rootBundle.load('assets/youbox_icon.png'))
       .buffer.asUint8List();
-  final macAddress = await GetMac.macAddress;
 
   FlutterError.onError = firebaseCrashlytics.recordFlutterError;
   Isolate.current.addErrorListener(RawReceivePort((List<dynamic> pair) async => await firebaseCrashlytics.recordError(
@@ -88,7 +87,6 @@ Future<void> main() async {
         remoteConfig,
         allAppsBanner,
         allAppsIcon,
-        macAddress,
         theBoxIcon,
         youBoxIcon
       ),

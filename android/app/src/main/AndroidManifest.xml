@@ -49,7 +49,6 @@
         android:banner="@drawable/banner"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true"
         android:label="AllMedia"
         android:exported="true">
         <activity

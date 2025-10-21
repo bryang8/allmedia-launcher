@@ -26,9 +26,10 @@ dependencies:
   unsplash_client: ^2.1.0+3
   webview_flutter: ^4.0.5
   network_to_file_image: ^4.0.1
-  url_launcher: ^6.1.13
+  url_launcher: 6.1.8
   mac_address: ^1.0.0
   android_intent_plus: ^4.0.2
+  device_info_plus: ^9.1.2
 
 dev_dependencies:
   flutter_test:

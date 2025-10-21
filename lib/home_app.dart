@@ -46,7 +46,6 @@ class HomeApp extends StatelessWidget {
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final Uint8List _allAppsBanner;
   final Uint8List _allAppsIcon;
-  final String _macAddress;
   final Uint8List _theBoxIcon;
   final Uint8List _youBoxIcon;
 
@@ -74,7 +73,6 @@ class HomeApp extends StatelessWidget {
     this._firebaseRemoteConfig,
     this._allAppsBanner,
     this._allAppsIcon,
-    this._macAddress,
     this._theBoxIcon,
     this._youBoxIcon
   );
@@ -145,7 +143,7 @@ class HomeApp extends StatelessWidget {
         ),
         home: Builder(
           builder: (context) => Home(
-              _allAppsBanner, _allAppsIcon, _macAddress, _theBoxIcon, _youBoxIcon
+              _allAppsBanner, _allAppsIcon, _theBoxIcon, _youBoxIcon
           ),
         ),
       ),

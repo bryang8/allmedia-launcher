@@ -37,12 +37,27 @@ import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
 import java.io.Serializable
+import android.os.Bundle
 
 private const val METHOD_CHANNEL = "com.allmedia.launcher/method"
 private const val EVENT_CHANNEL = "com.allmedia.launcher/event"
+private const val CHANNEL = "com.allmedia.launcher/androidid"
 
 class MainActivity : FlutterActivity() {
     val launcherAppsCallbacks = ArrayList<LauncherApps.Callback>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger ?: return, CHANNEL).setMethodCallHandler { call, result ->
+            if (call.method == "getAndroidId") {
+                val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+                result.success(androidId)
+            } else {
+                result.notImplemented()
+            }
+        }
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
